@@ -84,7 +84,8 @@
 </div>
 
 <script type="module">
-import { beginCell } from "https://esm.sh/@ton/core@0.59.0";
+import { beginCell, Cell } from "https://esm.sh/@ton/core@0.59.0";
+import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
 const DAO_ADDRESS = "kQBkWrkuiiiAzFrvdEIKtaHy0IPsLzgQCPfGiaqxWXbZsFiW";
 const TONCENTER   = "https://testnet.toncenter.com/api/v2";
@@ -266,24 +267,14 @@ function parseTactString(item) {
   try {
     if (!item) return "—";
     if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
-      const raw = atob(item.slice.bytes);
-      // raw[0]=d1, raw[1]=d2 — дескрипторы, остальное данные
-      // Данные — биты с completion bit в конце, нужно убрать padding
-      const dataBytes = [];
-      for (let i = 2; i < raw.length; i++)
-        dataBytes.push(raw.charCodeAt(i));
-      // Убираем completion bit: последний байт может содержать padding
-      // Просто декодируем как UTF-8
-      const uint8 = new Uint8Array(dataBytes);
-      // Убираем trailing нули и completion bit
-      let end = uint8.length;
-      while (end > 0 && uint8[end-1] === 0) end--;
-      // Последний байт содержит completion bit — убираем младшие биты padding
-      const trimmed = uint8.slice(0, end);
-      return new TextDecoder("utf-8").decode(trimmed).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,"").trim() || "—";
+      // Это BOC — декодируем через @ton/core
+      const bocBytes = Uint8Array.from(atob(item.slice.bytes), c => c.charCodeAt(0));
+      const cell = Cell.fromBoc(Buffer.from(bocBytes))[0];
+      const slice = cell.beginParse();
+      return slice.loadStringTail();
     }
     return "—";
-  } catch { return "—"; }
+  } catch(e) { return "err:" + e.message; }
 }
 
 function esc(s) {
