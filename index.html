@@ -97,7 +97,7 @@
 </div>
 
 <script>
-const DAO_ADDRESS   = "kQBr270aBCKxsbdOAbYlYiPGZEsZs9j-c6Dh5Z60dlDcvm6k";
+const DAO_ADDRESS   = "kQBkWrkuiiiAzFrvdEIKtaHy0IPsLzgQCPfGiaqxWXbZsFiW";
 const TOKEN_ADDRESS = "EQC_UVDOljGhkcZ-btfYt8M86RgmyNQfPXYuvR1Z8IZwac0b";
 const TONCENTER     = "https://testnet.toncenter.com/api/v2";
 
@@ -229,27 +229,13 @@ function encodeBOC(bits, refs) {
 // ── Строим payload для каждого сообщения ────────────────────────
 
 function buildCreatePayload(desc, dur) {
-  const bits = [];
-  const refs = [];
-  writeUint32(bits, 1);        // op = CreateProposal header
-  writeString(bits, refs, desc); // description → в ref
-  writeUint32(bits, dur);      // duration
-  return encodeBOC(bits, refs);
+    return null; // без payload — просто перевод
 }
-
-function buildVotePayload(proposalId, support) {
-  const bits = [];
-  writeUint32(bits, 2);            // op = Vote header
-  writeUint32(bits, proposalId);   // proposalId
-  writeBit(bits, support);         // support
-  return encodeBOC(bits, []);
+function buildVotePayload(id, support) {
+    return null;
 }
-
-function buildExecutePayload(proposalId) {
-  const bits = [];
-  writeUint32(bits, 3);            // op = ExecuteProposal header
-  writeUint32(bits, proposalId);   // proposalId
-  return encodeBOC(bits, []);
+function buildExecutePayload(id) {
+    return null;
 }
 
 // ── Действия пользователя ────────────────────────────────────────
