@@ -223,12 +223,13 @@ async function loadProposals() {
 async function buildProposalCard(id) {
   try {
     const res    = await runGetMethod("getProposal", [["num", id]]);
-    const stack  = res.stack;
-    const desc     = parseTactString(stack[1]);
-    const vFor     = parseInt(stack[2][1], 16);
-    const vAgainst = parseInt(stack[3][1], 16);
-    const deadline = parseInt(stack[4][1], 16);
-    const executed = stack[5][1] !== "0" && stack[5][1] !== "0x0";
+    // Структура возвращается как tuple
+    const tuple  = res.stack[0][1].elements;
+    const desc     = parseTactString(tuple[1]);
+    const vFor     = parseInt(tuple[2].number.number);
+    const vAgainst = parseInt(tuple[3].number.number);
+    const deadline = parseInt(tuple[4].number.number);
+    const executed = tuple[5].number.number !== "0";
     const now    = Math.floor(Date.now()/1000);
     const active = now < deadline;
     const dlStr  = new Date(deadline*1000).toLocaleString("ru-RU");
@@ -264,18 +265,13 @@ async function buildProposalCard(id) {
 function parseTactString(item) {
   try {
     if (!item) return "—";
-    if (item[0] === "cell" && item[1] && item[1].bytes) {
-      const raw = atob(item[1].bytes);
+    // Tact возвращает строку как tvm.stackEntrySlice
+    if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
+      const raw = atob(item.slice.bytes);
+      // Пропускаем первые 2 байта (дескрипторы cell)
       let str = "";
       for (let i = 2; i < raw.length; i++)
         str += String.fromCharCode(raw.charCodeAt(i) & 0xff);
-      return str.replace(/[\x00-\x1F\x7F]/g,"").trim() || "—";
-    }
-    if (typeof item[1] === "string") {
-      const hex = item[1].replace(/^0x/,"");
-      let str = "";
-      for (let i=0;i<hex.length;i+=2)
-        str += String.fromCharCode(parseInt(hex.substr(i,2),16));
       return str.replace(/[\x00-\x1F\x7F]/g,"").trim() || "—";
     }
     return "—";
