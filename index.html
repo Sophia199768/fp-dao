@@ -136,7 +136,7 @@ function buildVotePayload(proposalId, support) {
   const cell = beginCell()
     .storeUint(2, 32)
     .storeUint(proposalId, 32)
-    .storeBit(support ? 1 : 0)
+    .storeUint(support ? 1 : 0, 1)
     .endCell();
   return cell.toBoc().toString("base64");
 }
