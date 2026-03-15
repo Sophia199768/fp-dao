@@ -265,14 +265,22 @@ async function buildProposalCard(id) {
 function parseTactString(item) {
   try {
     if (!item) return "—";
-    // Tact возвращает строку как tvm.stackEntrySlice
     if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
       const raw = atob(item.slice.bytes);
-      // Пропускаем первые 2 байта (дескрипторы cell)
-      let str = "";
+      // raw[0]=d1, raw[1]=d2 — дескрипторы, остальное данные
+      // Данные — биты с completion bit в конце, нужно убрать padding
+      const dataBytes = [];
       for (let i = 2; i < raw.length; i++)
-        str += String.fromCharCode(raw.charCodeAt(i) & 0xff);
-      return str.replace(/[\x00-\x1F\x7F]/g,"").trim() || "—";
+        dataBytes.push(raw.charCodeAt(i));
+      // Убираем completion bit: последний байт может содержать padding
+      // Просто декодируем как UTF-8
+      const uint8 = new Uint8Array(dataBytes);
+      // Убираем trailing нули и completion bit
+      let end = uint8.length;
+      while (end > 0 && uint8[end-1] === 0) end--;
+      // Последний байт содержит completion bit — убираем младшие биты padding
+      const trimmed = uint8.slice(0, end);
+      return new TextDecoder("utf-8").decode(trimmed).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,"").trim() || "—";
     }
     return "—";
   } catch { return "—"; }
