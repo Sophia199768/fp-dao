@@ -224,7 +224,6 @@ async function loadProposals() {
 async function buildProposalCard(id) {
   try {
     const res    = await runGetMethod("getProposal", [["num", id]]);
-    // Структура возвращается как tuple
     const tuple  = res.stack[0][1].elements;
     const desc     = parseTactString(tuple[1]);
     const vFor     = parseInt(tuple[2].number.number);
@@ -281,7 +280,6 @@ function esc(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-// Делаем функции глобальными для onclick
 window.createProposal = createProposal;
 window.loadProposals  = loadProposals;
 window.showStatus     = showStatus;
