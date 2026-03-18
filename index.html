@@ -338,7 +338,7 @@ window.transferTokens = async function() {
   try {
     showStatus("⏳ Подтверди перевод в TonKeeper…", "info");
     const cell = beginCell()
-      .storeUint(0x0f8a7ea5, 32)
+      .storeUint(0x84cc682d, 32)
       .storeUint(0, 64)
       .storeCoins(BigInt(Math.floor(amount * 1e9)))
       .storeAddress(Address.parse(toAddr))
