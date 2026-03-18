@@ -62,6 +62,17 @@
       <div class="info-box"><div class="info-label">Адрес</div><div class="info-value" id="wAddr">—</div></div>
       <div class="info-box"><div class="info-label">Баланс TON</div><div class="info-value" id="wBal">—</div></div>
     </div>
+    <div class="info-row" style="margin-top:12px">
+      <div class="info-box"><div class="info-label">Баланс MTK токенов</div><div class="info-value" id="wJetton">—</div></div>
+    </div>
+  </div>
+  <div class="card" id="transferCard" style="display:none">
+    <div class="card-title">💸 Перевод MTK токенов</div>
+    <label>Адрес получателя</label>
+    <input type="text" id="transferTo" placeholder="EQ... или UQ...">
+    <label>Количество токенов</label>
+    <input type="number" id="transferAmount" placeholder="Например: 100" min="1">
+    <button class="btn btn-blue" onclick="transferTokens()">📤 Отправить</button>
   </div>
   <div class="card" id="createCard" style="display:none">
     <div class="card-title">✏️ Новое предложение</div>
@@ -84,10 +95,11 @@
 </div>
 
 <script type="module">
-import { beginCell, Cell } from "https://esm.sh/@ton/core@0.59.0";
+import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
 import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-const DAO_ADDRESS = "kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ";
+const DAO_ADDRESS   = "kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ";
+const TOKEN_ADDRESS = "EQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xXPi";
 const TONCENTER   = "https://testnet.toncenter.com/api/v2";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -106,8 +118,45 @@ tonConnectUI.onStatusChange(async wallet => {
       const j = await r.json();
       document.getElementById("wBal").textContent = (parseInt(j.result)/1e9).toFixed(2) + " TON";
     } catch { document.getElementById("wBal").textContent = "—"; }
+    try {
+      const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+      const bocStr = ownerCell.toBoc().toString("base64");
+
+      const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          address: TOKEN_ADDRESS,
+          method: "getWalletAddress",
+          stack: [["tvm.Slice", bocStr]]
+        })
+      });
+      const wj = await wr.json();
+      if (wj.ok && wj.result.exit_code === 0 && wj.result.stack[0]) {
+        const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+        const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+        const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+
+        const br = await fetch(`${TONCENTER}/runGetMethod`, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ address: walletAddr, method: "balance", stack: [] })
+        });
+        const bj = await br.json();
+        if (bj.ok && bj.result.stack[0]) {
+          const bal = parseInt(bj.result.stack[0][1], 16) / 1e9;
+          document.getElementById("wJetton").textContent = bal.toLocaleString() + " MTK";
+        } else {
+          document.getElementById("wJetton").textContent = "0 MTK";
+        }
+      }
+    } catch(e) {
+      console.error("MTK balance error:", e.message);
+      document.getElementById("wJetton").textContent = "—";
+    }
     document.getElementById("walletCard").style.display = "block";
     document.getElementById("createCard").style.display = "block";
+    document.getElementById("transferCard").style.display = "block";
     document.getElementById("refreshBtn").style.display = "inline-flex";
     showStatus("✅ Кошелёк подключён!", "success");
     loadProposals();
@@ -266,7 +315,6 @@ function parseTactString(item) {
   try {
     if (!item) return "—";
     if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
-      // Это BOC — декодируем через @ton/core
       const bocBytes = Uint8Array.from(atob(item.slice.bytes), c => c.charCodeAt(0));
       const cell = Cell.fromBoc(Buffer.from(bocBytes))[0];
       const slice = cell.beginParse();
@@ -278,6 +326,58 @@ function parseTactString(item) {
 
 function esc(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+
+window.transferTokens = async function() {
+  const toAddr = document.getElementById("transferTo").value.trim();
+  const amount = parseFloat(document.getElementById("transferAmount").value);
+  if (!toAddr) { showStatus("❌ Введи адрес получателя", "error"); return; }
+  if (!amount || amount <= 0) { showStatus("❌ Введи количество токенов", "error"); return; }
+  if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
+  try {
+    showStatus("⏳ Подтверди перевод в TonKeeper…", "info");
+    const cell = beginCell()
+      .storeUint(0x0f8a7ea5, 32)
+      .storeUint(0, 64)
+      .storeCoins(BigInt(Math.floor(amount * 1e9)))
+      .storeAddress(Address.parse(toAddr))
+      .storeAddress(Address.parse(myAddr))
+      .storeBit(0)
+      .storeCoins(0n)
+      .storeBit(0)
+      .endCell();
+
+    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+    const bocStr = ownerCell.toBoc().toString("base64");
+    const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        address: TOKEN_ADDRESS,
+        method: "getWalletAddress",
+        stack: [["tvm.Slice", bocStr]]
+      })
+    });
+    const wj = await wr.json();
+    if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
+
+    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+
+    await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now()/1000) + 600,
+      messages: [{
+        address: walletAddr,
+        amount: "100000000",   // 0.1 TON на газ
+        payload: cell.toBoc().toString("base64")
+      }]
+    });
+    showStatus("✅ Перевод отправлен!", "success");
+    document.getElementById("transferTo").value = "";
+    document.getElementById("transferAmount").value = "";
+  } catch(e) { showStatus("❌ " + (e.message||"Ошибка перевода"), "error"); }
 }
 
 window.createProposal = createProposal;
