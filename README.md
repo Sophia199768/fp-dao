@@ -10,10 +10,14 @@
 ton testnet
 
 ## 📝 Краткое описание выполненных шагов
-1. Написали и задеплоили контракт
+1. Проверка отображения баланса и отпрвавления токенов
+ ![Vote](photoes/Balance.png)
+ ![Vote](photoes/Send.png)
+
+2. Написали и задеплоили контракт
  https://testnet.tonscan.org/address/kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ
 
-2. Создали index.html
+3. Создали index.html
    ![Vote](photoes/Vote.png)
    ![Vote](photoes/Transaction.png)
    ![Vote](photoes/All_votes.png)
