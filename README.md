@@ -22,6 +22,7 @@ ton testnet
    ![Vote](photoes/Transaction.png)
    ![Vote](photoes/All_votes.png)
    ![Vote](photoes/Result.png)
+   ![Vote](photoes/All.png)
 
 ## Ссылку на ваши верифицированные контракты в обозревателе сети
 
