@@ -18,7 +18,7 @@ ton testnet
  https://testnet.tonscan.org/address/kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ
 
 3. Создали index.html
-   ![Vote](photoes/Vote.png)
+   ![Vote](photoes/Votes.png)
    ![Vote](photoes/Transaction.png)
    ![Vote](photoes/All_votes.png)
    ![Vote](photoes/Result.png)
