@@ -408,7 +408,7 @@ window.transferTokens = async function() {
 }
 
 
-// ── Voting Power функции ─────────────────────────────────────
+//Voting Power
 
 async function loadVotingPower() {
   if (!myAddr) return;
@@ -458,8 +458,8 @@ window.withdrawVP = async function() {
   try {
     showStatus("⏳ Выводим voting power… Подтверди в TonKeeper.", "info");
     const cell = beginCell()
-      .storeUint(5, 32)       // op = WithdrawVotingPower
-      .storeUint(amount, 32)  // amount
+      .storeUint(5, 32)
+      .storeUint(amount, 32)
       .endCell();
     await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now()/1000) + 600,
