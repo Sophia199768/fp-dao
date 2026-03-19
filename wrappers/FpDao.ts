@@ -813,6 +813,7 @@ export type Vote = {
     $$type: 'Vote';
     proposalId: bigint;
     support: boolean;
+    power: bigint;
 }
 
 export function storeVote(src: Vote) {
@@ -821,6 +822,7 @@ export function storeVote(src: Vote) {
         b_0.storeUint(2, 32);
         b_0.storeUint(src.proposalId, 32);
         b_0.storeBit(src.support);
+        b_0.storeUint(src.power, 32);
     };
 }
 
@@ -829,25 +831,29 @@ export function loadVote(slice: Slice) {
     if (sc_0.loadUint(32) !== 2) { throw Error('Invalid prefix'); }
     const _proposalId = sc_0.loadUintBig(32);
     const _support = sc_0.loadBit();
-    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support };
+    const _power = sc_0.loadUintBig(32);
+    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support, power: _power };
 }
 
 export function loadTupleVote(source: TupleReader) {
     const _proposalId = source.readBigNumber();
     const _support = source.readBoolean();
-    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support };
+    const _power = source.readBigNumber();
+    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support, power: _power };
 }
 
 export function loadGetterTupleVote(source: TupleReader) {
     const _proposalId = source.readBigNumber();
     const _support = source.readBoolean();
-    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support };
+    const _power = source.readBigNumber();
+    return { $$type: 'Vote' as const, proposalId: _proposalId, support: _support, power: _power };
 }
 
 export function storeTupleVote(source: Vote) {
     const builder = new TupleBuilder();
     builder.writeNumber(source.proposalId);
     builder.writeBoolean(source.support);
+    builder.writeNumber(source.power);
     return builder.build();
 }
 
@@ -909,6 +915,100 @@ export function dictValueParserExecuteProposal(): DictionaryValue<ExecuteProposa
     }
 }
 
+export type DepositVotingPower = {
+    $$type: 'DepositVotingPower';
+    amount: bigint;
+}
+
+export function storeDepositVotingPower(src: DepositVotingPower) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(4, 32);
+        b_0.storeUint(src.amount, 32);
+    };
+}
+
+export function loadDepositVotingPower(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 4) { throw Error('Invalid prefix'); }
+    const _amount = sc_0.loadUintBig(32);
+    return { $$type: 'DepositVotingPower' as const, amount: _amount };
+}
+
+export function loadTupleDepositVotingPower(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    return { $$type: 'DepositVotingPower' as const, amount: _amount };
+}
+
+export function loadGetterTupleDepositVotingPower(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    return { $$type: 'DepositVotingPower' as const, amount: _amount };
+}
+
+export function storeTupleDepositVotingPower(source: DepositVotingPower) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.amount);
+    return builder.build();
+}
+
+export function dictValueParserDepositVotingPower(): DictionaryValue<DepositVotingPower> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeDepositVotingPower(src)).endCell());
+        },
+        parse: (src) => {
+            return loadDepositVotingPower(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type WithdrawVotingPower = {
+    $$type: 'WithdrawVotingPower';
+    amount: bigint;
+}
+
+export function storeWithdrawVotingPower(src: WithdrawVotingPower) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(5, 32);
+        b_0.storeUint(src.amount, 32);
+    };
+}
+
+export function loadWithdrawVotingPower(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 5) { throw Error('Invalid prefix'); }
+    const _amount = sc_0.loadUintBig(32);
+    return { $$type: 'WithdrawVotingPower' as const, amount: _amount };
+}
+
+export function loadTupleWithdrawVotingPower(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    return { $$type: 'WithdrawVotingPower' as const, amount: _amount };
+}
+
+export function loadGetterTupleWithdrawVotingPower(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    return { $$type: 'WithdrawVotingPower' as const, amount: _amount };
+}
+
+export function storeTupleWithdrawVotingPower(source: WithdrawVotingPower) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.amount);
+    return builder.build();
+}
+
+export function dictValueParserWithdrawVotingPower(): DictionaryValue<WithdrawVotingPower> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeWithdrawVotingPower(src)).endCell());
+        },
+        parse: (src) => {
+            return loadWithdrawVotingPower(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type Proposal = {
     $$type: 'Proposal';
     id: bigint;
@@ -925,8 +1025,8 @@ export function storeProposal(src: Proposal) {
         const b_0 = builder;
         b_0.storeUint(src.id, 32);
         b_0.storeStringRefTail(src.description);
-        b_0.storeUint(src.votesFor, 32);
-        b_0.storeUint(src.votesAgainst, 32);
+        b_0.storeUint(src.votesFor, 64);
+        b_0.storeUint(src.votesAgainst, 64);
         b_0.storeUint(src.deadline, 32);
         b_0.storeBit(src.executed);
         b_0.storeAddress(src.proposer);
@@ -937,8 +1037,8 @@ export function loadProposal(slice: Slice) {
     const sc_0 = slice;
     const _id = sc_0.loadUintBig(32);
     const _description = sc_0.loadStringRefTail();
-    const _votesFor = sc_0.loadUintBig(32);
-    const _votesAgainst = sc_0.loadUintBig(32);
+    const _votesFor = sc_0.loadUintBig(64);
+    const _votesAgainst = sc_0.loadUintBig(64);
     const _deadline = sc_0.loadUintBig(32);
     const _executed = sc_0.loadBit();
     const _proposer = sc_0.loadAddress();
@@ -993,9 +1093,10 @@ export function dictValueParserProposal(): DictionaryValue<Proposal> {
 export type FpDao$Data = {
     $$type: 'FpDao$Data';
     jettonMaster: Address;
-    proposals: Dictionary<number, Proposal>;
+    proposals: Dictionary<bigint, Proposal>;
     proposalCount: bigint;
     voted: Dictionary<bigint, boolean>;
+    votingPower: Dictionary<bigint, bigint>;
     version: bigint;
 }
 
@@ -1003,9 +1104,10 @@ export function storeFpDao$Data(src: FpDao$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeAddress(src.jettonMaster);
-        b_0.storeDict(src.proposals, Dictionary.Keys.Uint(32), dictValueParserProposal());
+        b_0.storeDict(src.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal());
         b_0.storeUint(src.proposalCount, 32);
         b_0.storeDict(src.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool());
+        b_0.storeDict(src.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_0.storeUint(src.version, 32);
     };
 }
@@ -1013,37 +1115,41 @@ export function storeFpDao$Data(src: FpDao$Data) {
 export function loadFpDao$Data(slice: Slice) {
     const sc_0 = slice;
     const _jettonMaster = sc_0.loadAddress();
-    const _proposals = Dictionary.load(Dictionary.Keys.Uint(32), dictValueParserProposal(), sc_0);
+    const _proposals = Dictionary.load(Dictionary.Keys.BigInt(257), dictValueParserProposal(), sc_0);
     const _proposalCount = sc_0.loadUintBig(32);
     const _voted = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), sc_0);
+    const _votingPower = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_0);
     const _version = sc_0.loadUintBig(32);
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, version: _version };
+    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, version: _version };
 }
 
 export function loadTupleFpDao$Data(source: TupleReader) {
     const _jettonMaster = source.readAddress();
-    const _proposals = Dictionary.loadDirect(Dictionary.Keys.Uint(32), dictValueParserProposal(), source.readCellOpt());
+    const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, version: _version };
+    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, version: _version };
 }
 
 export function loadGetterTupleFpDao$Data(source: TupleReader) {
     const _jettonMaster = source.readAddress();
-    const _proposals = Dictionary.loadDirect(Dictionary.Keys.Uint(32), dictValueParserProposal(), source.readCellOpt());
+    const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, version: _version };
+    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, version: _version };
 }
 
 export function storeTupleFpDao$Data(source: FpDao$Data) {
     const builder = new TupleBuilder();
     builder.writeAddress(source.jettonMaster);
-    builder.writeCell(source.proposals.size > 0 ? beginCell().storeDictDirect(source.proposals, Dictionary.Keys.Uint(32), dictValueParserProposal()).endCell() : null);
+    builder.writeCell(source.proposals.size > 0 ? beginCell().storeDictDirect(source.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal()).endCell() : null);
     builder.writeNumber(source.proposalCount);
     builder.writeCell(source.voted.size > 0 ? beginCell().storeDictDirect(source.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool()).endCell() : null);
+    builder.writeCell(source.votingPower.size > 0 ? beginCell().storeDictDirect(source.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeNumber(source.version);
     return builder.build();
 }
@@ -1074,7 +1180,7 @@ function initFpDao_init_args(src: FpDao_init_args) {
 }
 
 async function FpDao_init(jettonMaster: Address, version: bigint) {
-    const __code = Cell.fromHex('b5ee9c724102150100048a00022cff008e88f4a413f4bcf2c80bed53208e8130e1ed43d90109020271020702037a600305018ca86fed44d0d200019efa40f404d31ff404d31f55406c158e10fa40810101d7005902d101706d026d01e25504db3c6c51206e92306d99206ef2d0806f276f07e2206e92306dde0400588020250259f40f6fa192306ddf206e92306d8e17d0d31fd401d001d31fd31fd31fd200fa4055606c176f07e2015ca8e1ed44d0d200019efa40f404d31ff404d31f55406c158e10fa40810101d7005902d101706d026d01e2db3c6c5106000224015dbe498f6a268690000cf7d207a02698ffa02698faaa0360ac7087d20408080eb802c816880b836813680f16d9e3628c0800022204d201d072d721d200d200fa4021103450666f04f86102f862ed44d0d200019efa40f404d31ff404d31f55406c158e10fa40810101d7005902d101706d026d01e206925f06e07025d74920c21f953105d31f06de21c001e30221c002e30221c003e302218210946a98b6ba0a0c111402c05b04d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f422f82358a08020702070f8422606105859c855605067cb1f04c8ce14cd12cb1fcb1fcb1fca00cec91034206e953059f45b30944133f417e201a488103544300b1000280000000050726f706f73616c206372656174656402fe5b04d31fd20030820090af5323b9f2f42380202359f40f6fa192306ddf206e92306d8e17d0d31fd401d001d31fd31fd31fd200fa4055606c176f07e2206ef2d0806f27813f86f82324b9f2f4f8428307db3c2982103b9aca00a80182103b9aca00a908a02d81010122714133f40c6fa19401d70030925b6de28200e7e9216e0d0e0006d7013002ca92317f9801206ef2d080c000e2f2f41d810101017f71216e955b59f45a3098c801cf004133f442e2079203a49402a44013e28020504cc855605067cb1f04c8ce14cd12cb1fcb1fcb1fca00cec910344660206e953059f45b30944133f417e28810354440130f10002000000000566f746520636f756e7465640072f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055405045ce12f400cb1ff400cb1fc9ed5401ee5b04d31f30820090af5312b9f2f42280202259f40f6fa192306ddf206e92306d8e17d0d31fd401d001d31fd31fd31fd200fa4055606c176f07e2206ef2d0806f278200a398f82324bef2f48200cdcb02b312f2f4151443307f80204717c855605067cb1f04c8ce14cd12cb1fcb1fcb1fca00cec910341212019a206e953059f45b30944133f417e2881035444013f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055405045ce12f400cb1ff400cb1fc9ed5413002a0000000050726f706f73616c20657865637574656400f68e505b04d33f30c8018210aff90f5758cb1fcb3fc910354430f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055405045ce12f400cb1ff400cb1fc9ed54e036c00005c12115b08e184034c87f01ca0055405045ce12f400cb1ff400cb1fc9ed54e05f05f2c082d567f8ee');
+    const __code = Cell.fromHex('b5ee9c72410221010007e1000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010c020271020a0201200305017bb9f0ced44d0d200018e18fa40f404d31fd401d0f404f404d31f301036103510346c168e12fa40810101d7005902d101706d6d50036d01e25505db3c6c61804014a8307db3c810101530350334133f40c6fa19401d70030925b6de2206e923070e0206ef2d08016020271060801a6a86fed44d0d200018e18fa40f404d31fd401d0f404f404d31f301036103510346c168e12fa40810101d7005902d101706d6d50036d01e25505db3c6c61206e92306d99206ef2d0806f276f07e2206e92306dde07005a810101260259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e20176a8e1ed44d0d200018e18fa40f404d31fd401d0f404f404d31f301036103510346c168e12fa40810101d7005902d101706d6d50036d01e2db3c6c61090002250177be498f6a268690000c70c7d207a02698fea00e87a027a02698f98081b081a881a360b47097d20408080eb802c816880b836b6a801b680f16d9e3630c0b00022303e830eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40f404d31fd401d0f404f404d31f301036103510346c168e12fa40810101d7005902d101706d6d50036d01e207925f07e07026d74920c21f9137e30d20c00027c121b0e302c000925f07e30df2c0820d1f2004fe3106d31f21c0048ff5313605d31f308200eecf21c200f2f4f8428307db3c81010154570052304133f40c6fa19401d70030925b6de2206e8e1a3081010120104813216e955b59f45a3098c801cf004133f442e28e2181010101206ef2d0805003a0221048216e955b59f45a3098c801cf004133f442e2e288104610354140e0160e110f003400000000566f74696e6720706f776572206465706f736974656404d221c0058fe0313605d31f30f8428307db3c81010154570052304133f40c6fa19401d70030925b6de2816dd5216eb3f2f4815cdc21206ef2d08024bef2f481010101206ef2d0805003a1221048216e955b59f45a3098c801cf004133f442e288104610354140e021c00116101112003400000000566f74696e6720706f7765722077697468647261776e0084f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db3104fee30221c0028f77313605d31fd200d31f30820090af5335b9f2f48200f7e021c200f2f4258101012459f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f27813f86f82324b9f2f4f8428307db3c2a82103b9aca00a82182103b9aca00a908a02c8101012271e01316171b02fe313605d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f4f8428307db3c810101530850334133f40c6fa19401d70030925b6de28200a72b216eb39801206ef2d080c200923170e2f2f423f82358a0810101702070f8422606105859c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91035161401ae206e953059f45a30944133f415e201a48810464540f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db311500280000000050726f706f73616c20637265617465640006d7013001fe4133f40c6fa19401d70030925b6de28200e7e9216e92317f9801206ef2d080c000e2f2f48101012056125422434133f40c6fa19401d70030925b6de2815cdc216eb39821206ef2d0802cbe9170e2f2f481010101206ef2d0802ba12104111304102302111302216e955b59f45a3098c801cf004133f442e21b8101010111101802f27f71216e955b59f45a3098c801cf004133f442e208935036a0945026a058e2104503502481010109c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9154330206e953059f45a30944133f415e2881046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00191a002000000000566f746520636f756e746564003ec87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db3102fe21c0038efa313605d31f30820090af5313b9f2f4238101012259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f278200a398f82324bef2f48200cdcb02b312f2f4151443307f8101014717c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91035121c1e01ac206e953059f45a30944133f415e2881046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db311d002a0000000050726f706f73616c20657865637574656400d4e0218210946a98b6ba8e5d313605d33f30c8018210aff90f5758cb1fcb3fc910461035443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db31e0300046303510355512c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54005605c21f8e2310355512c87f01ca0055505056ce13f400cb1f01c8f40012f40012cb1fcdc9ed54db31e05f0655ea2fa7');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initFpDao_init_args({ $$type: 'FpDao_init_args', jettonMaster, version })(builder);
@@ -1122,10 +1228,15 @@ export const FpDao_errors = {
     4505: { message: "Duration must be >= 60 seconds" },
     16262: { message: "Voting period has ended" },
     19000: { message: "Description cannot be empty" },
+    23772: { message: "Insufficient voting power" },
+    28117: { message: "No voting power" },
     37039: { message: "Proposal not found" },
     41880: { message: "Voting still active" },
+    42795: { message: "Must have voting power to create proposal" },
     52683: { message: "Already executed" },
     59369: { message: "Already voted" },
+    61135: { message: "Amount must be positive" },
+    63456: { message: "Power must be positive" },
 } as const
 
 export const FpDao_errors_backward = {
@@ -1168,10 +1279,15 @@ export const FpDao_errors_backward = {
     "Duration must be >= 60 seconds": 4505,
     "Voting period has ended": 16262,
     "Description cannot be empty": 19000,
+    "Insufficient voting power": 23772,
+    "No voting power": 28117,
     "Proposal not found": 37039,
     "Voting still active": 41880,
+    "Must have voting power to create proposal": 42795,
     "Already executed": 52683,
     "Already voted": 59369,
+    "Amount must be positive": 61135,
+    "Power must be positive": 63456,
 } as const
 
 const FpDao_types: ABIType[] = [
@@ -1189,10 +1305,12 @@ const FpDao_types: ABIType[] = [
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"FactoryDeploy","header":1829761339,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"cashback","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"CreateProposal","header":1,"fields":[{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"duration","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
-    {"name":"Vote","header":2,"fields":[{"name":"proposalId","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"support","type":{"kind":"simple","type":"bool","optional":false}}]},
+    {"name":"Vote","header":2,"fields":[{"name":"proposalId","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"support","type":{"kind":"simple","type":"bool","optional":false}},{"name":"power","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
     {"name":"ExecuteProposal","header":3,"fields":[{"name":"proposalId","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
-    {"name":"Proposal","header":null,"fields":[{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"votesFor","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"votesAgainst","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"deadline","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"executed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"proposer","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"FpDao$Data","header":null,"fields":[{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"uint","keyFormat":32,"value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"DepositVotingPower","header":4,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"WithdrawVotingPower","header":5,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"Proposal","header":null,"fields":[{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"votesFor","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"votesAgainst","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"deadline","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"executed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"proposer","type":{"kind":"simple","type":"address","optional":false}}]},
+    {"name":"FpDao$Data","header":null,"fields":[{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"int","value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"votingPower","type":{"kind":"dict","key":"int","value":"int"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
 ]
 
 const FpDao_opcodes = {
@@ -1202,22 +1320,29 @@ const FpDao_opcodes = {
     "CreateProposal": 1,
     "Vote": 2,
     "ExecuteProposal": 3,
+    "DepositVotingPower": 4,
+    "WithdrawVotingPower": 5,
 }
 
 const FpDao_getters: ABIGetter[] = [
     {"name":"getProposal","methodId":84079,"arguments":[{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}}],"returnType":{"kind":"simple","type":"Proposal","optional":true}},
     {"name":"getProposalCount","methodId":117041,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
     {"name":"getJettonMaster","methodId":85217,"arguments":[],"returnType":{"kind":"simple","type":"address","optional":false}},
+    {"name":"getVotingPower","methodId":73484,"arguments":[{"name":"voter","type":{"kind":"simple","type":"address","optional":false}}],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
 ]
 
 export const FpDao_getterMapping: { [key: string]: string } = {
     'getProposal': 'getGetProposal',
     'getProposalCount': 'getGetProposalCount',
     'getJettonMaster': 'getGetJettonMaster',
+    'getVotingPower': 'getGetVotingPower',
 }
 
 const FpDao_receivers: ABIReceiver[] = [
     {"receiver":"internal","message":{"kind":"empty"}},
+    {"receiver":"internal","message":{"kind":"text"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"DepositVotingPower"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"WithdrawVotingPower"}},
     {"receiver":"internal","message":{"kind":"typed","type":"CreateProposal"}},
     {"receiver":"internal","message":{"kind":"typed","type":"Vote"}},
     {"receiver":"internal","message":{"kind":"typed","type":"ExecuteProposal"}},
@@ -1259,11 +1384,20 @@ export class FpDao implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | CreateProposal | Vote | ExecuteProposal | Deploy) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | string | DepositVotingPower | WithdrawVotingPower | CreateProposal | Vote | ExecuteProposal | Deploy) {
         
         let body: Cell | null = null;
         if (message === null) {
             body = new Cell();
+        }
+        if (typeof message === 'string') {
+            body = beginCell().storeUint(0, 32).storeStringTail(message).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'DepositVotingPower') {
+            body = beginCell().store(storeDepositVotingPower(message)).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'WithdrawVotingPower') {
+            body = beginCell().store(storeWithdrawVotingPower(message)).endCell();
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'CreateProposal') {
             body = beginCell().store(storeCreateProposal(message)).endCell();
@@ -1303,6 +1437,14 @@ export class FpDao implements Contract {
         const builder = new TupleBuilder();
         const source = (await provider.get('getJettonMaster', builder.build())).stack;
         const result = source.readAddress();
+        return result;
+    }
+    
+    async getGetVotingPower(provider: ContractProvider, voter: Address) {
+        const builder = new TupleBuilder();
+        builder.writeAddress(voter);
+        const source = (await provider.get('getVotingPower', builder.build())).stack;
+        const result = source.readBigNumber();
         return result;
     }
     

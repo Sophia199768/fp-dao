@@ -66,6 +66,21 @@
       <div class="info-box"><div class="info-label">Баланс MTK токенов</div><div class="info-value" id="wJetton">—</div></div>
     </div>
   </div>
+  <div class="card" id="vpCard" style="display:none">
+    <div class="card-title">⚡ Голосовательная мощь (Voting Power)</div>
+    <div class="info-row">
+      <div class="info-box">
+        <div class="info-label">Доступная мощь</div>
+        <div class="info-value" id="vpBalance">—</div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <label>Внести мощь (количество)</label>
+      <input type="number" id="vpDepositAmount" placeholder="Например: 100" min="1" style="margin-bottom:10px">
+      <button class="btn btn-green" onclick="depositVP()" style="margin-right:8px">➕ Внести</button>
+      <button class="btn btn-gray" onclick="withdrawVP()">➖ Вывести</button>
+    </div>
+  </div>
   <div class="card" id="transferCard" style="display:none">
     <div class="card-title">💸 Перевод MTK токенов</div>
     <label>Адрес получателя</label>
@@ -98,7 +113,7 @@
 import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
 import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-const DAO_ADDRESS   = "kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ";
+const DAO_ADDRESS   = "kQBlGcVVTdG7MbSTpq-AMWyI-PKzb1ibGiifKGAg23us6mKg";
 const TOKEN_ADDRESS = "EQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xXPi";
 const TONCENTER   = "https://testnet.toncenter.com/api/v2";
 
@@ -157,6 +172,8 @@ tonConnectUI.onStatusChange(async wallet => {
     document.getElementById("walletCard").style.display = "block";
     document.getElementById("createCard").style.display = "block";
     document.getElementById("transferCard").style.display = "block";
+    document.getElementById("vpCard").style.display = "block";
+    loadVotingPower();
     document.getElementById("refreshBtn").style.display = "inline-flex";
     showStatus("✅ Кошелёк подключён!", "success");
     loadProposals();
@@ -217,14 +234,23 @@ async function createProposal() {
 }
 
 window.castVote = async function(id, support) {
+  const vpInput = document.getElementById("vp_" + id);
+  const power = vpInput ? parseInt(vpInput.value) : 1;
+  if (!power || power <= 0) { showStatus("❌ Введи количество голосовательной мощи", "error"); return; }
   try {
-    showStatus(`⏳ Голосуем ${support?"«За»":"«Против»"}… Подтверди в TonKeeper.`, "info");
+    showStatus(`⏳ Голосуем ${support?"«За»":"«Против»"} (мощь: ${power})… Подтверди в TonKeeper.`, "info");
+    const cell = beginCell()
+      .storeUint(2, 32)        // op = Vote
+      .storeUint(id, 32)       // proposalId
+      .storeUint(support?1:0, 1) // support
+      .storeUint(power, 32)    // power
+      .endCell();
     await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildVotePayload(id, support) }]
+      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
     });
     showStatus("✅ Голос отправлен! Обновляем через ~15 сек.", "success");
-    setTimeout(loadProposals, 15000);
+    setTimeout(() => { loadProposals(); loadVotingPower(); }, 15000);
   } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
 }
 
@@ -288,6 +314,7 @@ async function buildProposalCard(id) {
     if (active) {
       badge = '<span class="badge badge-active">🟢 Активно</span>';
       actions = `
+        <input type="number" id="vp_${id}" placeholder="Мощь" min="1" style="width:80px;margin:0 8px 0 0;padding:8px">
         <button class="btn btn-green" onclick="castVote(${id},true)">👍 За</button>
         <button class="btn btn-red"   onclick="castVote(${id},false)">👎 Против</button>`;
     } else if (!executed) {
@@ -338,7 +365,7 @@ window.transferTokens = async function() {
   try {
     showStatus("⏳ Подтверди перевод в TonKeeper…", "info");
     const cell = beginCell()
-      .storeUint(0x0f8a7ea5, 32)
+      .storeUint(0x84cc682d, 32)
       .storeUint(0, 64)
       .storeCoins(BigInt(Math.floor(amount * 1e9)))
       .storeAddress(Address.parse(toAddr))
@@ -380,7 +407,71 @@ window.transferTokens = async function() {
   } catch(e) { showStatus("❌ " + (e.message||"Ошибка перевода"), "error"); }
 }
 
+
+// ── Voting Power функции ─────────────────────────────────────
+
+async function loadVotingPower() {
+  if (!myAddr) return;
+  try {
+    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+    const bocStr = ownerCell.toBoc().toString("base64");
+    const r = await fetch(`${TONCENTER}/runGetMethod`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        address: DAO_ADDRESS,
+        method: "getVotingPower",
+        stack: [["tvm.Slice", bocStr]]
+      })
+    });
+    const j = await r.json();
+    if (j.ok && j.result.stack[0]) {
+      const vp = parseInt(j.result.stack[0][1], 16);
+      document.getElementById("vpBalance").textContent = vp + " VP";
+    }
+  } catch(e) {
+    document.getElementById("vpBalance").textContent = "—";
+  }
+}
+
+window.depositVP = async function() {
+  const amount = parseInt(document.getElementById("vpDepositAmount").value);
+  if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+  try {
+    showStatus("⏳ Вносим voting power… Подтверди в TonKeeper.", "info");
+    const cell = beginCell()
+      .storeUint(4, 32)       // op = DepositVotingPower
+      .storeUint(amount, 32)  // amount
+      .endCell();
+    await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now()/1000) + 600,
+      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+    });
+    showStatus("✅ Voting power внесён! Обновляем через 15 сек.", "success");
+    setTimeout(loadVotingPower, 15000);
+  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+}
+
+window.withdrawVP = async function() {
+  const amount = parseInt(document.getElementById("vpDepositAmount").value);
+  if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+  try {
+    showStatus("⏳ Выводим voting power… Подтверди в TonKeeper.", "info");
+    const cell = beginCell()
+      .storeUint(5, 32)       // op = WithdrawVotingPower
+      .storeUint(amount, 32)  // amount
+      .endCell();
+    await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now()/1000) + 600,
+      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+    });
+    showStatus("✅ Voting power выведен! Обновляем через 15 сек.", "success");
+    setTimeout(loadVotingPower, 15000);
+  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+}
+
 window.createProposal = createProposal;
+window.loadVotingPower = loadVotingPower;
 window.loadProposals  = loadProposals;
 window.showStatus     = showStatus;
 </script>

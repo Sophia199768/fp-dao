@@ -10,17 +10,25 @@
 ton testnet
 
 ## 📝 Краткое описание выполненных шагов
-1. Написали и задеплоили контракт
+1. Проверка отображения баланса и отпрвавления токенов
+ ![Vote](photoes/Balance.png)
+ ![Vote](photoes/Send.png)
+
+2. Написали и задеплоили контракт
  https://testnet.tonscan.org/address/kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ
 
-2. Создали index.html
-   ![Vote](photoes/Vote.png)
+3. Создали index.html
+   ![Vote](photoes/Votes.png)
    ![Vote](photoes/Transaction.png)
    ![Vote](photoes/All_votes.png)
    ![Vote](photoes/Result.png)
+   ![Vote](photoes/All.png)
 
 ## Ссылку на ваши верифицированные контракты в обозревателе сети
 https://testnet.tonscan.org/address/kQB8pvb2Q08Pi3u_KStelwaXTzdBKhk2WWdCYVjzA88HlKfZ
+
+https://testnet.tonscan.org/address/kQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xcho
 ## Ссылку на задеплоенное приложение
 https://sophia199768.github.io/fp-dao/
+
 
