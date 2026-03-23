@@ -8,15 +8,11 @@ message(1) CreateProposal {
 message(2) Vote {
     proposalId: Int as uint32;
     support: Bool;
-    power: Int as uint32;  // сколько voting power тратим
+    power: Int as uint32;
 }
 
 message(3) ExecuteProposal {
     proposalId: Int as uint32;
-}
-
-message(4) DepositVotingPower {
-    amount: Int as uint32;  // сколько voting power вносим
 }
 
 message(5) WithdrawVotingPower {
@@ -24,16 +20,32 @@ message(5) WithdrawVotingPower {
 }
 
 
+message(0x7362d09c) JettonTransferNotification {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    sender: Address;
+    forwardPayload: Slice as remaining;
+}
+
+message(0xf8a7ea5) JettonTransfer {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    destination: Address;
+    responseDestination: Address;
+    customPayload: Cell?;
+    forwardTonAmount: Int as coins;
+    forwardPayload: Slice as remaining;
+}
+
 struct Proposal {
     id: Int as uint32;
     description: String;
-    votesFor: Int as uint64;     // сумма voting power "за"
-    votesAgainst: Int as uint64; // сумма voting power "против"
+    votesFor: Int as uint64;
+    votesAgainst: Int as uint64;
     deadline: Int as uint32;
     executed: Bool;
     proposer: Address;
 }
-
 
 contract FpDao with Deployable {
 
@@ -41,45 +53,73 @@ contract FpDao with Deployable {
     proposals: map<Int, Proposal>;
     proposalCount: Int as uint32;
     voted: map<Int, Bool>;
-
-    // Голосовательная мощь каждого пользователя
     votingPower: map<Int, Int>;
-
+    deposits: map<Int, Int>;
     version: Int as uint32;
 
     init(jettonMaster: Address, version: Int) {
-        self.jettonMaster   = jettonMaster;
-        self.proposalCount  = 0;
-        self.proposals      = emptyMap();
-        self.voted          = emptyMap();
-        self.votingPower    = emptyMap();
-        self.version        = version;
+        self.jettonMaster  = jettonMaster;
+        self.proposalCount = 0;
+        self.proposals     = emptyMap();
+        self.voted         = emptyMap();
+        self.votingPower   = emptyMap();
+        self.deposits      = emptyMap();
+        self.version       = version;
     }
 
     receive() {}
     receive(msg: String) {}
 
 
-    receive(msg: DepositVotingPower) {
-        require(msg.amount > 0, "Amount must be positive");
-        let addrInt: Int = sender().asSlice().loadUint(256);
-        let current: Int? = self.votingPower.get(addrInt);
-        if (current == null) {
-            self.votingPower.set(addrInt, msg.amount);
+    receive(msg: JettonTransferNotification) {
+        let addrInt: Int = msg.sender.asSlice().loadUint(256);
+        let amount: Int  = msg.amount / 1000000000; // переводим из nanocoins
+
+
+        let currentVP: Int? = self.votingPower.get(addrInt);
+        if (currentVP == null) {
+            self.votingPower.set(addrInt, amount);
         } else {
-            self.votingPower.set(addrInt, current!! + msg.amount);
+            self.votingPower.set(addrInt, currentVP!! + amount);
         }
-        self.reply("Voting power deposited".asComment());
+
+        let currentDep: Int? = self.deposits.get(addrInt);
+        if (currentDep == null) {
+            self.deposits.set(addrInt, amount);
+        } else {
+            self.deposits.set(addrInt, currentDep!! + amount);
+        }
     }
 
     receive(msg: WithdrawVotingPower) {
         let addrInt: Int = sender().asSlice().loadUint(256);
-        let current: Int? = self.votingPower.get(addrInt);
-        require(current != null, "No voting power");
-        require(current!! >= msg.amount, "Insufficient voting power");
-        self.votingPower.set(addrInt, current!! - msg.amount);
-        self.reply("Voting power withdrawn".asComment());
+        let currentVP: Int? = self.votingPower.get(addrInt);
+        let currentDep: Int? = self.deposits.get(addrInt);
+        require(currentDep != null && currentDep!! >= msg.amount, "Insufficient deposit");
+        require(currentVP != null && currentVP!! >= msg.amount, "Insufficient voting power");
+
+
+        self.votingPower.set(addrInt, currentVP!! - msg.amount);
+        self.deposits.set(addrInt, currentDep!! - msg.amount);
+
+
+        send(SendParameters{
+            to: self.jettonMaster,
+            value: ton("0.1"),
+            bounce: true,
+            body: beginCell()
+                .storeUint(0x84cc682d, 32)
+                .storeUint(0, 64)
+                .storeCoins(msg.amount * 1000000000)
+                .storeAddress(sender())
+                .storeAddress(sender())
+                .storeBit(false)
+                .storeCoins(0)
+                .storeBit(false)
+                .endCell()
+        });
     }
+
 
     receive(msg: CreateProposal) {
         require(msg.duration >= 60, "Duration must be >= 60 seconds");
@@ -89,7 +129,7 @@ contract FpDao with Deployable {
         let power: Int? = self.votingPower.get(addrInt);
         require(power != null && power!! > 0, "Must have voting power to create proposal");
 
-        let id: Int = self.proposalCount;
+        let id: Int      = self.proposalCount;
         let deadline: Int = now() + msg.duration;
 
         self.proposals.set(id, Proposal{
@@ -106,13 +146,13 @@ contract FpDao with Deployable {
         self.reply("Proposal created".asComment());
     }
 
+
     receive(msg: Vote) {
         require(msg.proposalId < self.proposalCount, "Proposal not found");
         require(msg.power > 0, "Power must be positive");
 
         let p: Proposal = self.proposals.get(msg.proposalId)!!;
         require(now() < p.deadline, "Voting period has ended");
-
 
         let addrInt: Int = sender().asSlice().loadUint(256);
         let voteKey: Int = msg.proposalId * 1000000000 + addrInt % 1000000000;
@@ -164,5 +204,12 @@ contract FpDao with Deployable {
         let power: Int? = self.votingPower.get(addrInt);
         if (power == null) { return 0; }
         return power!!;
+    }
+
+    get fun getDeposit(voter: Address): Int {
+        let addrInt: Int = voter.asSlice().loadUint(256);
+        let dep: Int? = self.deposits.get(addrInt);
+        if (dep == null) { return 0; }
+        return dep!!;
     }
 }

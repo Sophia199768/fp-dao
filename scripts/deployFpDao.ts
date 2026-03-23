@@ -3,7 +3,7 @@ import { FpDao } from "../wrappers/FpDao";
 import { NetworkProvider } from "@ton/blueprint";
 
 export async function run(provider: NetworkProvider) {
-    const JETTON_MASTER = Address.parse("EQC_UVDOljGhkcZ-btfYt8M86RgmyNQfPXYuvR1Z8IZwac0b");
+    const JETTON_MASTER = Address.parse("EQBLqt1rDRbZMJ2B80UqKEspetZ5GtPhedWnUe2qAiqTpDp9");
     const VERSION = 5n;
 
     const dao = provider.open(
