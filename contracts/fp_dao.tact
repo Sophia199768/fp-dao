@@ -19,22 +19,11 @@ message(5) WithdrawVotingPower {
     amount: Int as uint32;
 }
 
-
 message(0x7362d09c) JettonTransferNotification {
     queryId: Int as uint64;
     amount: Int as coins;
     sender: Address;
-    forwardPayload: Slice as remaining;
-}
-
-message(0xf8a7ea5) JettonTransfer {
-    queryId: Int as uint64;
-    amount: Int as coins;
-    destination: Address;
-    responseDestination: Address;
-    customPayload: Cell?;
-    forwardTonAmount: Int as coins;
-    forwardPayload: Slice as remaining;
+    forwardPayload: Cell?;
 }
 
 struct Proposal {
@@ -50,11 +39,15 @@ struct Proposal {
 contract FpDao with Deployable {
 
     jettonMaster: Address;
+
     proposals: map<Int, Proposal>;
     proposalCount: Int as uint32;
+
     voted: map<Int, Bool>;
+
     votingPower: map<Int, Int>;
     deposits: map<Int, Int>;
+
     version: Int as uint32;
 
     init(jettonMaster: Address, version: Int) {
@@ -70,11 +63,18 @@ contract FpDao with Deployable {
     receive() {}
     receive(msg: String) {}
 
+    // ===============================
+    // Deposit Jetton → Voting Power
+    // ===============================
 
     receive(msg: JettonTransferNotification) {
-        let addrInt: Int = msg.sender.asSlice().loadUint(256);
-        let amount: Int  = msg.amount / 1000000000; // переводим из nanocoins
 
+        let user: Address = msg.sender;
+
+        let addrInt: Int = user.asSlice().loadUint(256);
+
+        // jetton decimals = 9
+        let amount: Int = msg.amount / 1000000000;
 
         let currentVP: Int? = self.votingPower.get(addrInt);
         if (currentVP == null) {
@@ -91,17 +91,22 @@ contract FpDao with Deployable {
         }
     }
 
+    // ===============================
+    // Withdraw voting power
+    // ===============================
+
     receive(msg: WithdrawVotingPower) {
+
         let addrInt: Int = sender().asSlice().loadUint(256);
+
         let currentVP: Int? = self.votingPower.get(addrInt);
         let currentDep: Int? = self.deposits.get(addrInt);
+
         require(currentDep != null && currentDep!! >= msg.amount, "Insufficient deposit");
         require(currentVP != null && currentVP!! >= msg.amount, "Insufficient voting power");
 
-
         self.votingPower.set(addrInt, currentVP!! - msg.amount);
         self.deposits.set(addrInt, currentDep!! - msg.amount);
-
 
         send(SendParameters{
             to: self.jettonMaster,
@@ -120,16 +125,22 @@ contract FpDao with Deployable {
         });
     }
 
+    // ===============================
+    // Create proposal
+    // ===============================
 
     receive(msg: CreateProposal) {
+
         require(msg.duration >= 60, "Duration must be >= 60 seconds");
         require(msg.description != "", "Description cannot be empty");
 
         let addrInt: Int = sender().asSlice().loadUint(256);
-        let power: Int? = self.votingPower.get(addrInt);
-        require(power != null && power!! > 0, "Must have voting power to create proposal");
 
-        let id: Int      = self.proposalCount;
+        let power: Int? = self.votingPower.get(addrInt);
+        require(power != null && power!! > 0, "Must have voting power");
+
+        let id: Int = self.proposalCount;
+
         let deadline: Int = now() + msg.duration;
 
         self.proposals.set(id, Proposal{
@@ -143,24 +154,33 @@ contract FpDao with Deployable {
         });
 
         self.proposalCount = self.proposalCount + 1;
+
         self.reply("Proposal created".asComment());
     }
 
+    // ===============================
+    // Vote
+    // ===============================
 
     receive(msg: Vote) {
+
         require(msg.proposalId < self.proposalCount, "Proposal not found");
         require(msg.power > 0, "Power must be positive");
 
         let p: Proposal = self.proposals.get(msg.proposalId)!!;
-        require(now() < p.deadline, "Voting period has ended");
+
+        require(now() < p.deadline, "Voting ended");
 
         let addrInt: Int = sender().asSlice().loadUint(256);
+
         let voteKey: Int = msg.proposalId * 1000000000 + addrInt % 1000000000;
+
         let alreadyVoted: Bool? = self.voted.get(voteKey);
         require(alreadyVoted == null || alreadyVoted!! == false, "Already voted");
 
         let power: Int? = self.votingPower.get(addrInt);
         require(power != null && power!! >= msg.power, "Insufficient voting power");
+
         self.votingPower.set(addrInt, power!! - msg.power);
 
         self.voted.set(voteKey, true);
@@ -172,20 +192,33 @@ contract FpDao with Deployable {
         }
 
         self.proposals.set(msg.proposalId, p);
+
         self.reply("Vote counted".asComment());
     }
 
+    // ===============================
+    // Execute proposal
+    // ===============================
+
     receive(msg: ExecuteProposal) {
+
         require(msg.proposalId < self.proposalCount, "Proposal not found");
 
         let p: Proposal = self.proposals.get(msg.proposalId)!!;
-        require(now() >= p.deadline, "Voting still active");
+
+        require(now() >= p.deadline, "Voting active");
         require(!p.executed, "Already executed");
 
         p.executed = true;
+
         self.proposals.set(msg.proposalId, p);
+
         self.reply("Proposal executed".asComment());
     }
+
+    // ===============================
+    // Getters
+    // ===============================
 
     get fun getProposal(id: Int): Proposal? {
         return self.proposals.get(id);
@@ -200,16 +233,28 @@ contract FpDao with Deployable {
     }
 
     get fun getVotingPower(voter: Address): Int {
+
         let addrInt: Int = voter.asSlice().loadUint(256);
+
         let power: Int? = self.votingPower.get(addrInt);
-        if (power == null) { return 0; }
+
+        if (power == null) {
+            return 0;
+        }
+
         return power!!;
     }
 
     get fun getDeposit(voter: Address): Int {
+
         let addrInt: Int = voter.asSlice().loadUint(256);
+
         let dep: Int? = self.deposits.get(addrInt);
-        if (dep == null) { return 0; }
+
+        if (dep == null) {
+            return 0;
+        }
+
         return dep!!;
     }
 }
