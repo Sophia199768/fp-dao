@@ -8,7 +8,7 @@ message(1) CreateProposal {
 message(2) Vote {
     proposalId: Int as uint32;
     support: Bool;
-    power: Int as uint32;  // сколько voting power тратим
+    power: Int as uint32;
 }
 
 message(3) ExecuteProposal {
@@ -16,7 +16,7 @@ message(3) ExecuteProposal {
 }
 
 message(4) DepositVotingPower {
-    amount: Int as uint32;  // сколько voting power вносим
+    amount: Int as uint32;
 }
 
 message(5) WithdrawVotingPower {
@@ -27,8 +27,8 @@ message(5) WithdrawVotingPower {
 struct Proposal {
     id: Int as uint32;
     description: String;
-    votesFor: Int as uint64;     // сумма voting power "за"
-    votesAgainst: Int as uint64; // сумма voting power "против"
+    votesFor: Int as uint64;
+    votesAgainst: Int as uint64;
     deadline: Int as uint32;
     executed: Bool;
     proposer: Address;
@@ -42,7 +42,6 @@ contract FpDao with Deployable {
     proposalCount: Int as uint32;
     voted: map<Int, Bool>;
 
-    // Голосовательная мощь каждого пользователя
     votingPower: map<Int, Int>;
 
     version: Int as uint32;
