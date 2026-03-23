@@ -94,7 +94,7 @@
     <label>Описание предложения</label>
     <textarea id="pDesc" placeholder="Например: Перевести 100 TON из казны на маркетинг..."></textarea>
     <label>Длительность голосования (секунды)</label>
-    <input type="number" id="pDur" value="300" min="60">
+    <input type="number" id="pDur" value="500" min="60">
     <div class="hint">300 = 5 минут · 3600 = 1 час · 86400 = 1 сутки</div>
     <button class="btn btn-blue" onclick="createProposal()">🚀 Создать предложение</button>
   </div>
@@ -113,8 +113,8 @@
 import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
 import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-const DAO_ADDRESS   = "kQBlGcVVTdG7MbSTpq-AMWyI-PKzb1ibGiifKGAg23us6mKg";
-const TOKEN_ADDRESS = "EQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xXPi";
+const DAO_ADDRESS   = "kQB4OIJj0YUltAr7zaiRJ9Xp3gOwFoeU3Zqp8ZS84DkiIJtG";
+const TOKEN_ADDRESS = "EQBLqt1rDRbZMJ2B80UqKEspetZ5GtPhedWnUe2qAiqTpDp9";
 const TONCENTER   = "https://testnet.toncenter.com/api/v2";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -438,17 +438,42 @@ window.depositVP = async function() {
   const amount = parseInt(document.getElementById("vpDepositAmount").value);
   if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
   try {
-    showStatus("⏳ Вносим voting power… Подтверди в TonKeeper.", "info");
-    const cell = beginCell()
-      .storeUint(4, 32)       // op = DepositVotingPower
-      .storeUint(amount, 32)  // amount
+    showStatus("⏳ Переводим MTK в DAO… Подтверди в TonKeeper.", "info");
+
+    // Получаем адрес Jetton Wallet пользователя
+    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+    const bocStr = ownerCell.toBoc().toString("base64");
+    const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ address: TOKEN_ADDRESS, method: "getWalletAddress", stack: [["tvm.Slice", bocStr]] })
+    });
+    const wj = await wr.json();
+    if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
+
+    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+
+    // Отправляем JettonTransfer: переводим MTK → DAO
+    // При получении DAO запишет VP автоматически через JettonTransferNotification
+    const transferCell = beginCell()
+      .storeUint(0x84cc682d, 32)                          // op = JettonTransfer
+      .storeUint(0, 64)                                    // queryId
+      .storeCoins(BigInt(amount) * 1000000000n)            // amount в nanocoins
+      .storeAddress(Address.parse(DAO_ADDRESS))            // destination = DAO
+      .storeAddress(Address.parse(myAddr))                 // responseDestination
+      .storeBit(false)                                     // no custom payload
+      .storeCoins(50000000n)                               // forwardAmount = 0.05 TON (для уведомления)
+      .storeBit(false)                                     // no forward payload
       .endCell();
+
     await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+      messages: [{ address: walletAddr, amount: "200000000", payload: transferCell.toBoc().toString("base64") }]
     });
-    showStatus("✅ Voting power внесён! Обновляем через 15 сек.", "success");
-    setTimeout(loadVotingPower, 15000);
+    showStatus("✅ MTK переведены в DAO! VP обновится через ~15 сек.", "success");
+    setTimeout(() => { loadVotingPower(); }, 15000);
   } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
 }
 
