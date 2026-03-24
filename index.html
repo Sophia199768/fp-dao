@@ -465,13 +465,13 @@ window.depositVP = async function() {
       .storeAddress(Address.parse(DAO_ADDRESS))            // destination = DAO
       .storeAddress(Address.parse(myAddr))                 // responseDestination
       .storeBit(false)                                     // no custom payload
-      .storeCoins(50000000n)                               // forwardAmount = 0.05 TON (для уведомления)
+      .storeCoins(100000000n)                              // forwardAmount = 0.1 TON (для уведомления)
       .storeBit(false)                                     // no forward payload
       .endCell();
 
     await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: walletAddr, amount: "200000000", payload: transferCell.toBoc().toString("base64") }]
+      messages: [{ address: walletAddr, amount: "300000000", payload: transferCell.toBoc().toString("base64") }]
     });
     showStatus("✅ MTK переведены в DAO! VP обновится через ~15 сек.", "success");
     setTimeout(() => { loadVotingPower(); }, 15000);
