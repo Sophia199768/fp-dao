@@ -1,331 +1,331 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FPToken DAO — TON Testnet</title>
-  <script src="https://unpkg.com/@tonconnect/ui@2.0.5/dist/tonconnect-ui.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #07071a; color: #dde3f0; min-height: 100vh; }
-    header { background: #0d0d2b; border-bottom: 1px solid #1e1e4a; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-    .logo { font-size: 20px; font-weight: 700; color: #5b8dee; }
-    .logo span { color: #888; font-size: 13px; font-weight: 400; margin-left: 8px; }
-    .container { max-width: 820px; margin: 0 auto; padding: 28px 20px; }
-    .card { background: #0d0d2b; border: 1px solid #1e1e4a; border-radius: 14px; padding: 22px 24px; margin-bottom: 20px; }
-    .card-title { font-size: 15px; font-weight: 600; color: #5b8dee; margin-bottom: 16px; }
-    .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .info-box { background: #07071a; border-radius: 8px; padding: 12px 14px; }
-    .info-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
-    .info-value { font-size: 14px; font-weight: 600; word-break: break-all; }
-    label { display: block; font-size: 13px; color: #888; margin-bottom: 5px; }
-    textarea, input[type=number] { width: 100%; background: #07071a; border: 1px solid #1e1e4a; border-radius: 8px; padding: 10px 13px; color: #dde3f0; font-size: 14px; outline: none; margin-bottom: 14px; transition: border-color .2s; }
-    textarea { resize: vertical; min-height: 72px; }
-    textarea:focus, input:focus { border-color: #5b8dee; }
-    .hint { font-size: 12px; color: #555; margin: -10px 0 14px; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: opacity .2s; }
-    .btn:disabled { opacity: .35; cursor: not-allowed; }
-    .btn-blue  { background: #5b8dee; color: #fff; }
-    .btn-green { background: #22c55e; color: #fff; }
-    .btn-red   { background: #ef4444; color: #fff; }
-    .btn-gray  { background: #2a2a4a; color: #aaa; }
-    .pcard { background: #07071a; border: 1px solid #1e1e4a; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
-    .pcard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-    .ptitle { font-size: 15px; font-weight: 600; flex: 1; line-height: 1.4; }
-    .badge { white-space: nowrap; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
-    .badge-active { background: #052e16; color: #4ade80; }
-    .badge-ended  { background: #1c1917; color: #78716c; }
-    .badge-pass   { background: #1e1b4b; color: #818cf8; }
-    .badge-fail   { background: #3b0d0d; color: #f87171; }
-    .pmeta { font-size: 12px; color: #4a4a6a; margin-bottom: 10px; }
-    .vbar-wrap { background: #1e1e4a; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
-    .vbar-fill { height: 100%; background: linear-gradient(90deg,#22c55e,#5b8dee); transition: width .4s; }
-    .vstats { display: flex; justify-content: space-between; font-size: 12px; color: #555; }
-    .pactions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .alert { border-radius: 9px; padding: 11px 15px; font-size: 13px; margin-bottom: 16px; }
-    .a-info    { background: #0e2444; color: #7db8f7; }
-    .a-success { background: #052e16; color: #4ade80; }
-    .a-error   { background: #3b0d0d; color: #f87171; }
-    .spinner { text-align: center; padding: 30px; color: #333; font-size: 13px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPToken DAO — TON Testnet</title>
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.5/dist/tonconnect-ui.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #07071a; color: #dde3f0; min-height: 100vh; }
+        header { background: #0d0d2b; border-bottom: 1px solid #1e1e4a; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .logo { font-size: 20px; font-weight: 700; color: #5b8dee; }
+        .logo span { color: #888; font-size: 13px; font-weight: 400; margin-left: 8px; }
+        .container { max-width: 820px; margin: 0 auto; padding: 28px 20px; }
+        .card { background: #0d0d2b; border: 1px solid #1e1e4a; border-radius: 14px; padding: 22px 24px; margin-bottom: 20px; }
+        .card-title { font-size: 15px; font-weight: 600; color: #5b8dee; margin-bottom: 16px; }
+        .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .info-box { background: #07071a; border-radius: 8px; padding: 12px 14px; }
+        .info-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+        .info-value { font-size: 14px; font-weight: 600; word-break: break-all; }
+        label { display: block; font-size: 13px; color: #888; margin-bottom: 5px; }
+        textarea, input[type=number] { width: 100%; background: #07071a; border: 1px solid #1e1e4a; border-radius: 8px; padding: 10px 13px; color: #dde3f0; font-size: 14px; outline: none; margin-bottom: 14px; transition: border-color .2s; }
+        textarea { resize: vertical; min-height: 72px; }
+        textarea:focus, input:focus { border-color: #5b8dee; }
+        .hint { font-size: 12px; color: #555; margin: -10px 0 14px; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: opacity .2s; }
+        .btn:disabled { opacity: .35; cursor: not-allowed; }
+        .btn-blue  { background: #5b8dee; color: #fff; }
+        .btn-green { background: #22c55e; color: #fff; }
+        .btn-red   { background: #ef4444; color: #fff; }
+        .btn-gray  { background: #2a2a4a; color: #aaa; }
+        .pcard { background: #07071a; border: 1px solid #1e1e4a; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+        .pcard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+        .ptitle { font-size: 15px; font-weight: 600; flex: 1; line-height: 1.4; }
+        .badge { white-space: nowrap; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+        .badge-active { background: #052e16; color: #4ade80; }
+        .badge-ended  { background: #1c1917; color: #78716c; }
+        .badge-pass   { background: #1e1b4b; color: #818cf8; }
+        .badge-fail   { background: #3b0d0d; color: #f87171; }
+        .pmeta { font-size: 12px; color: #4a4a6a; margin-bottom: 10px; }
+        .vbar-wrap { background: #1e1e4a; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
+        .vbar-fill { height: 100%; background: linear-gradient(90deg,#22c55e,#5b8dee); transition: width .4s; }
+        .vstats { display: flex; justify-content: space-between; font-size: 12px; color: #555; }
+        .pactions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .alert { border-radius: 9px; padding: 11px 15px; font-size: 13px; margin-bottom: 16px; }
+        .a-info    { background: #0e2444; color: #7db8f7; }
+        .a-success { background: #052e16; color: #4ade80; }
+        .a-error   { background: #3b0d0d; color: #f87171; }
+        .spinner { text-align: center; padding: 30px; color: #333; font-size: 13px; }
+    </style>
 </head>
 <body>
 <header>
-  <div class="logo">🏛 FPToken DAO <span>TON Testnet</span></div>
-  <div id="ton-connect"></div>
+    <div class="logo">🏛 FPToken DAO <span>TON Testnet</span></div>
+    <div id="ton-connect"></div>
 </header>
 <div class="container">
-  <div id="statusBox"></div>
-  <div class="card" id="walletCard" style="display:none">
-    <div class="card-title">👤 Мой кошелёк</div>
-    <div class="info-row">
-      <div class="info-box"><div class="info-label">Адрес</div><div class="info-value" id="wAddr">—</div></div>
-      <div class="info-box"><div class="info-label">Баланс TON</div><div class="info-value" id="wBal">—</div></div>
+    <div id="statusBox"></div>
+    <div class="card" id="walletCard" style="display:none">
+        <div class="card-title">👤 Мой кошелёк</div>
+        <div class="info-row">
+            <div class="info-box"><div class="info-label">Адрес</div><div class="info-value" id="wAddr">—</div></div>
+            <div class="info-box"><div class="info-label">Баланс TON</div><div class="info-value" id="wBal">—</div></div>
+        </div>
+        <div class="info-row" style="margin-top:12px">
+            <div class="info-box"><div class="info-label">Баланс MTK токенов</div><div class="info-value" id="wJetton">—</div></div>
+        </div>
     </div>
-    <div class="info-row" style="margin-top:12px">
-      <div class="info-box"><div class="info-label">Баланс MTK токенов</div><div class="info-value" id="wJetton">—</div></div>
+    <div class="card" id="vpCard" style="display:none">
+        <div class="card-title">⚡ Голосовательная мощь (Voting Power)</div>
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Доступная мощь</div>
+                <div class="info-value" id="vpBalance">—</div>
+            </div>
+        </div>
+        <div style="margin-top:14px">
+            <label>Внести мощь (количество)</label>
+            <input type="number" id="vpDepositAmount" placeholder="Например: 100" min="1" style="margin-bottom:10px">
+            <button class="btn btn-green" onclick="depositVP()" style="margin-right:8px">➕ Внести</button>
+            <button class="btn btn-gray" onclick="withdrawVP()">➖ Вывести</button>
+        </div>
     </div>
-  </div>
-  <div class="card" id="vpCard" style="display:none">
-    <div class="card-title">⚡ Голосовательная мощь (Voting Power)</div>
-    <div class="info-row">
-      <div class="info-box">
-        <div class="info-label">Доступная мощь</div>
-        <div class="info-value" id="vpBalance">—</div>
-      </div>
+    <div class="card" id="transferCard" style="display:none">
+        <div class="card-title">💸 Перевод MTK токенов</div>
+        <label>Адрес получателя</label>
+        <input type="text" id="transferTo" placeholder="EQ... или UQ...">
+        <label>Количество токенов</label>
+        <input type="number" id="transferAmount" placeholder="Например: 100" min="1">
+        <button class="btn btn-blue" onclick="transferTokens()">📤 Отправить</button>
     </div>
-    <div style="margin-top:14px">
-      <label>Внести мощь (количество)</label>
-      <input type="number" id="vpDepositAmount" placeholder="Например: 100" min="1" style="margin-bottom:10px">
-      <button class="btn btn-green" onclick="depositVP()" style="margin-right:8px">➕ Внести</button>
-      <button class="btn btn-gray" onclick="withdrawVP()">➖ Вывести</button>
+    <div class="card" id="createCard" style="display:none">
+        <div class="card-title">✏️ Новое предложение</div>
+        <label>Описание предложения</label>
+        <textarea id="pDesc" placeholder="Например: Перевести 100 TON из казны на маркетинг..."></textarea>
+        <label>Длительность голосования (секунды)</label>
+        <input type="number" id="pDur" value="300" min="60">
+        <div class="hint">300 = 5 минут · 3600 = 1 час · 86400 = 1 сутки</div>
+        <button class="btn btn-blue" onclick="createProposal()">🚀 Создать предложение</button>
     </div>
-  </div>
-  <div class="card" id="transferCard" style="display:none">
-    <div class="card-title">💸 Перевод MTK токенов</div>
-    <label>Адрес получателя</label>
-    <input type="text" id="transferTo" placeholder="EQ... или UQ...">
-    <label>Количество токенов</label>
-    <input type="number" id="transferAmount" placeholder="Например: 100" min="1">
-    <button class="btn btn-blue" onclick="transferTokens()">📤 Отправить</button>
-  </div>
-  <div class="card" id="createCard" style="display:none">
-    <div class="card-title">✏️ Новое предложение</div>
-    <label>Описание предложения</label>
-    <textarea id="pDesc" placeholder="Например: Перевести 100 TON из казны на маркетинг..."></textarea>
-    <label>Длительность голосования (секунды)</label>
-    <input type="number" id="pDur" value="500" min="60">
-    <div class="hint">300 = 5 минут · 3600 = 1 час · 86400 = 1 сутки</div>
-    <button class="btn btn-blue" onclick="createProposal()">🚀 Создать предложение</button>
-  </div>
-  <div class="card">
-    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
-      <span>📋 Предложения DAO</span>
-      <button class="btn btn-gray" id="refreshBtn" onclick="loadProposals()" style="display:none;font-size:12px;padding:5px 12px">🔄 Обновить</button>
+    <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>📋 Предложения DAO</span>
+            <button class="btn btn-gray" id="refreshBtn" onclick="loadProposals()" style="display:none;font-size:12px;padding:5px 12px">🔄 Обновить</button>
+        </div>
+        <div id="proposalList">
+            <div class="alert a-info">🔗 Подключи TonKeeper (Testnet) чтобы увидеть предложения</div>
+        </div>
     </div>
-    <div id="proposalList">
-      <div class="alert a-info">🔗 Подключи TonKeeper (Testnet) чтобы увидеть предложения</div>
-    </div>
-  </div>
 </div>
 
 <script type="module">
-import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
-import { Buffer } from "https://esm.sh/buffer@6.0.3";
+    import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
+    import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-const DAO_ADDRESS   = "kQB4OIJj0YUltAr7zaiRJ9Xp3gOwFoeU3Zqp8ZS84DkiIJtG";
-const TOKEN_ADDRESS = "EQBLqt1rDRbZMJ2B80UqKEspetZ5GtPhedWnUe2qAiqTpDp9";
-const TONCENTER   = "https://testnet.toncenter.com/api/v2";
+    const DAO_ADDRESS   = "kQBlGcVVTdG7MbSTpq-AMWyI-PKzb1ibGiifKGAg23us6mKg";
+    const TOKEN_ADDRESS = "EQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xXPi";
+    const TONCENTER   = "https://testnet.toncenter.com/api/v2";
 
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json",
-  buttonRootId: "ton-connect"
-});
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json",
+        buttonRootId: "ton-connect"
+    });
 
-let myAddr = null;
+    let myAddr = null;
 
-tonConnectUI.onStatusChange(async wallet => {
-  if (wallet) {
-    myAddr = wallet.account.address;
-    document.getElementById("wAddr").textContent = myAddr.slice(0,6) + "…" + myAddr.slice(-4);
-    try {
-      const r = await fetch(`${TONCENTER}/getAddressBalance?address=${myAddr}`);
-      const j = await r.json();
-      document.getElementById("wBal").textContent = (parseInt(j.result)/1e9).toFixed(2) + " TON";
-    } catch { document.getElementById("wBal").textContent = "—"; }
-    try {
-      const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-      const bocStr = ownerCell.toBoc().toString("base64");
+    tonConnectUI.onStatusChange(async wallet => {
+        if (wallet) {
+            myAddr = wallet.account.address;
+            document.getElementById("wAddr").textContent = myAddr.slice(0,6) + "…" + myAddr.slice(-4);
+            try {
+                const r = await fetch(`${TONCENTER}/getAddressBalance?address=${myAddr}`);
+                const j = await r.json();
+                document.getElementById("wBal").textContent = (parseInt(j.result)/1e9).toFixed(2) + " TON";
+            } catch { document.getElementById("wBal").textContent = "—"; }
+            try {
+                const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+                const bocStr = ownerCell.toBoc().toString("base64");
 
-      const wr = await fetch(`${TONCENTER}/runGetMethod`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          address: TOKEN_ADDRESS,
-          method: "getWalletAddress",
-          stack: [["tvm.Slice", bocStr]]
-        })
-      });
-      const wj = await wr.json();
-      if (wj.ok && wj.result.exit_code === 0 && wj.result.stack[0]) {
-        const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
-        const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
-        const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+                const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+                    method: "POST",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({
+                        address: TOKEN_ADDRESS,
+                        method: "getWalletAddress",
+                        stack: [["tvm.Slice", bocStr]]
+                    })
+                });
+                const wj = await wr.json();
+                if (wj.ok && wj.result.exit_code === 0 && wj.result.stack[0]) {
+                    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+                    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+                    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
 
-        const br = await fetch(`${TONCENTER}/runGetMethod`, {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ address: walletAddr, method: "balance", stack: [] })
-        });
-        const bj = await br.json();
-        if (bj.ok && bj.result.stack[0]) {
-          const bal = parseInt(bj.result.stack[0][1], 16) / 1e9;
-          document.getElementById("wJetton").textContent = bal.toLocaleString() + " MTK";
+                    const br = await fetch(`${TONCENTER}/runGetMethod`, {
+                        method: "POST",
+                        headers: {"Content-Type":"application/json"},
+                        body: JSON.stringify({ address: walletAddr, method: "balance", stack: [] })
+                    });
+                    const bj = await br.json();
+                    if (bj.ok && bj.result.stack[0]) {
+                        const bal = parseInt(bj.result.stack[0][1], 16) / 1e9;
+                        document.getElementById("wJetton").textContent = bal.toLocaleString() + " MTK";
+                    } else {
+                        document.getElementById("wJetton").textContent = "0 MTK";
+                    }
+                }
+            } catch(e) {
+                console.error("MTK balance error:", e.message);
+                document.getElementById("wJetton").textContent = "—";
+            }
+            document.getElementById("walletCard").style.display = "block";
+            document.getElementById("createCard").style.display = "block";
+            document.getElementById("transferCard").style.display = "block";
+            document.getElementById("vpCard").style.display = "block";
+            loadVotingPower();
+            document.getElementById("refreshBtn").style.display = "inline-flex";
+            showStatus("✅ Кошелёк подключён!", "success");
+            loadProposals();
         } else {
-          document.getElementById("wJetton").textContent = "0 MTK";
+            myAddr = null;
+            ["walletCard","createCard"].forEach(id => document.getElementById(id).style.display = "none");
+            document.getElementById("refreshBtn").style.display = "none";
         }
-      }
-    } catch(e) {
-      console.error("MTK balance error:", e.message);
-      document.getElementById("wJetton").textContent = "—";
+    });
+
+    function showStatus(msg, type="info") {
+        document.getElementById("statusBox").innerHTML = `<div class="alert a-${type}">${msg}</div>`;
+        if (type === "success") setTimeout(() => document.getElementById("statusBox").innerHTML = "", 5000);
     }
-    document.getElementById("walletCard").style.display = "block";
-    document.getElementById("createCard").style.display = "block";
-    document.getElementById("transferCard").style.display = "block";
-    document.getElementById("vpCard").style.display = "block";
-    loadVotingPower();
-    document.getElementById("refreshBtn").style.display = "inline-flex";
-    showStatus("✅ Кошелёк подключён!", "success");
-    loadProposals();
-  } else {
-    myAddr = null;
-    ["walletCard","createCard"].forEach(id => document.getElementById(id).style.display = "none");
-    document.getElementById("refreshBtn").style.display = "none";
-  }
-});
 
-function showStatus(msg, type="info") {
-  document.getElementById("statusBox").innerHTML = `<div class="alert a-${type}">${msg}</div>`;
-  if (type === "success") setTimeout(() => document.getElementById("statusBox").innerHTML = "", 5000);
-}
-
-function buildCreatePayload(desc, dur) {
-  const cell = beginCell()
-    .storeUint(1, 32)
-    .storeStringRefTail(desc)
-    .storeUint(dur, 32)
-    .endCell();
-  return cell.toBoc().toString("base64");
-}
-
-function buildVotePayload(proposalId, support) {
-  const cell = beginCell()
-    .storeUint(2, 32)
-    .storeUint(proposalId, 32)
-    .storeUint(support ? 1 : 0, 1)
-    .endCell();
-  return cell.toBoc().toString("base64");
-}
-
-function buildExecutePayload(proposalId) {
-  const cell = beginCell()
-    .storeUint(3, 32)
-    .storeUint(proposalId, 32)
-    .endCell();
-  return cell.toBoc().toString("base64");
-}
-
-async function createProposal() {
-  const desc = document.getElementById("pDesc").value.trim();
-  const dur  = parseInt(document.getElementById("pDur").value);
-  if (!desc) { showStatus("❌ Введи описание предложения", "error"); return; }
-  if (!dur || dur < 60) { showStatus("❌ Минимум 60 секунд", "error"); return; }
-  if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
-  try {
-    showStatus("⏳ Подтверди транзакцию в TonKeeper…", "info");
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildCreatePayload(desc, dur) }]
-    });
-    showStatus("✅ Отправлено! Список обновится через ~15 сек.", "success");
-    document.getElementById("pDesc").value = "";
-    setTimeout(loadProposals, 15000);
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
-}
-
-window.castVote = async function(id, support) {
-  const vpInput = document.getElementById("vp_" + id);
-  const power = vpInput ? parseInt(vpInput.value) : 1;
-  if (!power || power <= 0) { showStatus("❌ Введи количество голосовательной мощи", "error"); return; }
-  try {
-    showStatus(`⏳ Голосуем ${support?"«За»":"«Против»"} (мощь: ${power})… Подтверди в TonKeeper.`, "info");
-    const cell = beginCell()
-      .storeUint(2, 32)        // op = Vote
-      .storeUint(id, 32)       // proposalId
-      .storeUint(support?1:0, 1) // support
-      .storeUint(power, 32)    // power
-      .endCell();
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
-    });
-    showStatus("✅ Голос отправлен! Обновляем через ~15 сек.", "success");
-    setTimeout(() => { loadProposals(); loadVotingPower(); }, 15000);
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
-}
-
-window.doExecute = async function(id) {
-  try {
-    showStatus("⏳ Подводим итоги… Подтверди в TonKeeper.", "info");
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildExecutePayload(id) }]
-    });
-    showStatus("✅ Готово! Обновляем через ~15 сек.", "success");
-    setTimeout(loadProposals, 15000);
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
-}
-
-async function runGetMethod(method, stack) {
-  const r = await fetch(`${TONCENTER}/runGetMethod`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ address: DAO_ADDRESS, method, stack })
-  });
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || "get method failed");
-  return j.result;
-}
-
-async function loadProposals() {
-  if (!myAddr) return;
-  const list = document.getElementById("proposalList");
-  list.innerHTML = '<div class="spinner">⏳ Загружаем данные из блокчейна…</div>';
-  try {
-    const res   = await runGetMethod("getProposalCount", []);
-    const count = parseInt(res.stack[0][1], 16);
-    if (count === 0) {
-      list.innerHTML = '<div class="alert a-info">📭 Предложений пока нет — создай первое!</div>';
-      return;
+    function buildCreatePayload(desc, dur) {
+        const cell = beginCell()
+            .storeUint(1, 32)
+            .storeStringRefTail(desc)
+            .storeUint(dur, 32)
+            .endCell();
+        return cell.toBoc().toString("base64");
     }
-    let html = "";
-    for (let i = count-1; i >= 0; i--) html += await buildProposalCard(i);
-    list.innerHTML = html;
-  } catch(e) {
-    list.innerHTML = `<div class="alert a-error">❌ Ошибка загрузки: ${e.message}</div>`;
-  }
-}
 
-async function buildProposalCard(id) {
-  try {
-    const res    = await runGetMethod("getProposal", [["num", id]]);
-    const tuple  = res.stack[0][1].elements;
-    const desc     = parseTactString(tuple[1]);
-    const vFor     = parseInt(tuple[2].number.number);
-    const vAgainst = parseInt(tuple[3].number.number);
-    const deadline = parseInt(tuple[4].number.number);
-    const executed = tuple[5].number.number !== "0";
-    const now    = Math.floor(Date.now()/1000);
-    const active = now < deadline;
-    const dlStr  = new Date(deadline*1000).toLocaleString("ru-RU");
-    const total  = vFor + vAgainst;
-    const pct    = total > 0 ? Math.round(vFor/total*100) : 50;
-    let badge = "", actions = "";
-    if (active) {
-      badge = '<span class="badge badge-active">🟢 Активно</span>';
-      actions = `
+    function buildVotePayload(proposalId, support) {
+        const cell = beginCell()
+            .storeUint(2, 32)
+            .storeUint(proposalId, 32)
+            .storeUint(support ? 1 : 0, 1)
+            .endCell();
+        return cell.toBoc().toString("base64");
+    }
+
+    function buildExecutePayload(proposalId) {
+        const cell = beginCell()
+            .storeUint(3, 32)
+            .storeUint(proposalId, 32)
+            .endCell();
+        return cell.toBoc().toString("base64");
+    }
+
+    async function createProposal() {
+        const desc = document.getElementById("pDesc").value.trim();
+        const dur  = parseInt(document.getElementById("pDur").value);
+        if (!desc) { showStatus("❌ Введи описание предложения", "error"); return; }
+        if (!dur || dur < 60) { showStatus("❌ Минимум 60 секунд", "error"); return; }
+        if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
+        try {
+            showStatus("⏳ Подтверди транзакцию в TonKeeper…", "info");
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildCreatePayload(desc, dur) }]
+            });
+            showStatus("✅ Отправлено! Список обновится через ~15 сек.", "success");
+            document.getElementById("pDesc").value = "";
+            setTimeout(loadProposals, 15000);
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    window.castVote = async function(id, support) {
+        const vpInput = document.getElementById("vp_" + id);
+        const power = vpInput ? parseInt(vpInput.value) : 1;
+        if (!power || power <= 0) { showStatus("❌ Введи количество голосовательной мощи", "error"); return; }
+        try {
+            showStatus(`⏳ Голосуем ${support?"«За»":"«Против»"} (мощь: ${power})… Подтверди в TonKeeper.`, "info");
+            const cell = beginCell()
+                .storeUint(2, 32)        // op = Vote
+                .storeUint(id, 32)       // proposalId
+                .storeUint(support?1:0, 1) // support
+                .storeUint(power, 32)    // power
+                .endCell();
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+            });
+            showStatus("✅ Голос отправлен! Обновляем через ~15 сек.", "success");
+            setTimeout(() => { loadProposals(); loadVotingPower(); }, 15000);
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    window.doExecute = async function(id) {
+        try {
+            showStatus("⏳ Подводим итоги… Подтверди в TonKeeper.", "info");
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildExecutePayload(id) }]
+            });
+            showStatus("✅ Готово! Обновляем через ~15 сек.", "success");
+            setTimeout(loadProposals, 15000);
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    async function runGetMethod(method, stack) {
+        const r = await fetch(`${TONCENTER}/runGetMethod`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ address: DAO_ADDRESS, method, stack })
+        });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || "get method failed");
+        return j.result;
+    }
+
+    async function loadProposals() {
+        if (!myAddr) return;
+        const list = document.getElementById("proposalList");
+        list.innerHTML = '<div class="spinner">⏳ Загружаем данные из блокчейна…</div>';
+        try {
+            const res   = await runGetMethod("getProposalCount", []);
+            const count = parseInt(res.stack[0][1], 16);
+            if (count === 0) {
+                list.innerHTML = '<div class="alert a-info">📭 Предложений пока нет — создай первое!</div>';
+                return;
+            }
+            let html = "";
+            for (let i = count-1; i >= 0; i--) html += await buildProposalCard(i);
+            list.innerHTML = html;
+        } catch(e) {
+            list.innerHTML = `<div class="alert a-error">❌ Ошибка загрузки: ${e.message}</div>`;
+        }
+    }
+
+    async function buildProposalCard(id) {
+        try {
+            const res    = await runGetMethod("getProposal", [["num", id]]);
+            const tuple  = res.stack[0][1].elements;
+            const desc     = parseTactString(tuple[1]);
+            const vFor     = parseInt(tuple[2].number.number);
+            const vAgainst = parseInt(tuple[3].number.number);
+            const deadline = parseInt(tuple[4].number.number);
+            const executed = tuple[5].number.number !== "0";
+            const now    = Math.floor(Date.now()/1000);
+            const active = now < deadline;
+            const dlStr  = new Date(deadline*1000).toLocaleString("ru-RU");
+            const total  = vFor + vAgainst;
+            const pct    = total > 0 ? Math.round(vFor/total*100) : 50;
+            let badge = "", actions = "";
+            if (active) {
+                badge = '<span class="badge badge-active">🟢 Активно</span>';
+                actions = `
         <input type="number" id="vp_${id}" placeholder="Мощь" min="1" style="width:80px;margin:0 8px 0 0;padding:8px">
         <button class="btn btn-green" onclick="castVote(${id},true)">👍 За</button>
         <button class="btn btn-red"   onclick="castVote(${id},false)">👎 Против</button>`;
-    } else if (!executed) {
-      badge = '<span class="badge badge-ended">🔴 Завершено</span>';
-      actions = `<button class="btn btn-gray" onclick="doExecute(${id})">⚡ Подвести итоги</button>`;
-    } else {
-      badge = vFor > vAgainst
-        ? '<span class="badge badge-pass">✅ Принято</span>'
-        : '<span class="badge badge-fail">❌ Отклонено</span>';
-    }
-    return `
+            } else if (!executed) {
+                badge = '<span class="badge badge-ended">🔴 Завершено</span>';
+                actions = `<button class="btn btn-gray" onclick="doExecute(${id})">⚡ Подвести итоги</button>`;
+            } else {
+                badge = vFor > vAgainst
+                    ? '<span class="badge badge-pass">✅ Принято</span>'
+                    : '<span class="badge badge-fail">❌ Отклонено</span>';
+            }
+            return `
     <div class="pcard">
       <div class="pcard-top"><div class="ptitle">#${id} — ${esc(desc)}</div>${badge}</div>
       <div class="pmeta">⏰ Дедлайн: ${dlStr}</div>
@@ -333,172 +333,147 @@ async function buildProposalCard(id) {
       <div class="vstats"><span>👍 За: ${vFor}</span><span>👎 Против: ${vAgainst}</span></div>
       <div class="pactions">${actions}</div>
     </div>`;
-  } catch(e) {
-    return `<div class="alert a-error">⚠️ Ошибка #${id}: ${e.message}</div>`;
-  }
-}
-
-function parseTactString(item) {
-  try {
-    if (!item) return "—";
-    if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
-      const bocBytes = Uint8Array.from(atob(item.slice.bytes), c => c.charCodeAt(0));
-      const cell = Cell.fromBoc(Buffer.from(bocBytes))[0];
-      const slice = cell.beginParse();
-      return slice.loadStringTail();
+        } catch(e) {
+            return `<div class="alert a-error">⚠️ Ошибка #${id}: ${e.message}</div>`;
+        }
     }
-    return "—";
-  } catch(e) { return "err:" + e.message; }
-}
 
-function esc(s) {
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
-
-window.transferTokens = async function() {
-  const toAddr = document.getElementById("transferTo").value.trim();
-  const amount = parseFloat(document.getElementById("transferAmount").value);
-  if (!toAddr) { showStatus("❌ Введи адрес получателя", "error"); return; }
-  if (!amount || amount <= 0) { showStatus("❌ Введи количество токенов", "error"); return; }
-  if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
-  try {
-    showStatus("⏳ Подтверди перевод в TonKeeper…", "info");
-    const cell = beginCell()
-      .storeUint(0x84cc682d, 32)
-      .storeUint(0, 64)
-      .storeCoins(BigInt(Math.floor(amount * 1e9)))
-      .storeAddress(Address.parse(toAddr))
-      .storeAddress(Address.parse(myAddr))
-      .storeBit(0)
-      .storeCoins(0n)
-      .storeBit(0)
-      .endCell();
-
-    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-    const bocStr = ownerCell.toBoc().toString("base64");
-    const wr = await fetch(`${TONCENTER}/runGetMethod`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        address: TOKEN_ADDRESS,
-        method: "getWalletAddress",
-        stack: [["tvm.Slice", bocStr]]
-      })
-    });
-    const wj = await wr.json();
-    if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
-
-    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
-    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
-    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
-
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{
-        address: walletAddr,
-        amount: "100000000",   // 0.1 TON на газ
-        payload: cell.toBoc().toString("base64")
-      }]
-    });
-    showStatus("✅ Перевод отправлен!", "success");
-    document.getElementById("transferTo").value = "";
-    document.getElementById("transferAmount").value = "";
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка перевода"), "error"); }
-}
-
-
-//Voting Power
-
-async function loadVotingPower() {
-  if (!myAddr) return;
-  try {
-    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-    const bocStr = ownerCell.toBoc().toString("base64");
-    const r = await fetch(`${TONCENTER}/runGetMethod`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        address: DAO_ADDRESS,
-        method: "getVotingPower",
-        stack: [["tvm.Slice", bocStr]]
-      })
-    });
-    const j = await r.json();
-    if (j.ok && j.result.stack[0]) {
-      const vp = parseInt(j.result.stack[0][1], 16);
-      document.getElementById("vpBalance").textContent = vp + " VP";
+    function parseTactString(item) {
+        try {
+            if (!item) return "—";
+            if (item["@type"] === "tvm.stackEntrySlice" && item.slice && item.slice.bytes) {
+                const bocBytes = Uint8Array.from(atob(item.slice.bytes), c => c.charCodeAt(0));
+                const cell = Cell.fromBoc(Buffer.from(bocBytes))[0];
+                const slice = cell.beginParse();
+                return slice.loadStringTail();
+            }
+            return "—";
+        } catch(e) { return "err:" + e.message; }
     }
-  } catch(e) {
-    document.getElementById("vpBalance").textContent = "—";
-  }
-}
 
-window.depositVP = async function() {
-  const amount = parseInt(document.getElementById("vpDepositAmount").value);
-  if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
-  try {
-    showStatus("⏳ Переводим MTK в DAO… Подтверди в TonKeeper.", "info");
+    function esc(s) {
+        return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
 
-    // Получаем адрес Jetton Wallet пользователя
-    const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-    const bocStr = ownerCell.toBoc().toString("base64");
-    const wr = await fetch(`${TONCENTER}/runGetMethod`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ address: TOKEN_ADDRESS, method: "getWalletAddress", stack: [["tvm.Slice", bocStr]] })
-    });
-    const wj = await wr.json();
-    if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
 
-    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
-    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
-    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+    window.transferTokens = async function() {
+        const toAddr = document.getElementById("transferTo").value.trim();
+        const amount = parseFloat(document.getElementById("transferAmount").value);
+        if (!toAddr) { showStatus("❌ Введи адрес получателя", "error"); return; }
+        if (!amount || amount <= 0) { showStatus("❌ Введи количество токенов", "error"); return; }
+        if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
+        try {
+            showStatus("⏳ Подтверди перевод в TonKeeper…", "info");
+            const cell = beginCell()
+                .storeUint(0x84cc682d, 32)
+                .storeUint(0, 64)
+                .storeCoins(BigInt(Math.floor(amount * 1e9)))
+                .storeAddress(Address.parse(toAddr))
+                .storeAddress(Address.parse(myAddr))
+                .storeBit(0)
+                .storeCoins(0n)
+                .storeBit(0)
+                .endCell();
 
-    // Отправляем JettonTransfer: переводим MTK → DAO
-    // При получении DAO запишет VP автоматически через JettonTransferNotification
-    const transferCell = beginCell()
-      .storeUint(0x84cc682d, 32)                          // op = JettonTransfer
-      .storeUint(0, 64)                                    // queryId
-      .storeCoins(BigInt(amount) * 1000000000n)            // amount в nanocoins
-      .storeAddress(Address.parse(DAO_ADDRESS))            // destination = DAO
-      .storeAddress(Address.parse(myAddr))                 // responseDestination
-      .storeBit(false)                                     // no custom payload
-      .storeCoins(50000000n)                               // forwardAmount = 0.05 TON (для уведомления)
-      .storeBit(false)                                     // no forward payload
-      .endCell();
+            const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+            const bocStr = ownerCell.toBoc().toString("base64");
+            const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                    address: TOKEN_ADDRESS,
+                    method: "getWalletAddress",
+                    stack: [["tvm.Slice", bocStr]]
+                })
+            });
+            const wj = await wr.json();
+            if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
 
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: walletAddr, amount: "200000000", payload: transferCell.toBoc().toString("base64") }]
-    });
-    showStatus("✅ MTK переведены в DAO! VP обновится через ~15 сек.", "success");
-    setTimeout(() => { loadVotingPower(); }, 15000);
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
-}
+            const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+            const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+            const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
 
-window.withdrawVP = async function() {
-  const amount = parseInt(document.getElementById("vpDepositAmount").value);
-  if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
-  try {
-    showStatus("⏳ Выводим voting power… Подтверди в TonKeeper.", "info");
-    const cell = beginCell()
-      .storeUint(5, 32)
-      .storeUint(amount, 32)
-      .endCell();
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
-    });
-    showStatus("✅ Voting power выведен! Обновляем через 15 сек.", "success");
-    setTimeout(loadVotingPower, 15000);
-  } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
-}
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{
+                    address: walletAddr,
+                    amount: "100000000",   // 0.1 TON на газ
+                    payload: cell.toBoc().toString("base64")
+                }]
+            });
+            showStatus("✅ Перевод отправлен!", "success");
+            document.getElementById("transferTo").value = "";
+            document.getElementById("transferAmount").value = "";
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка перевода"), "error"); }
+    }
 
-window.createProposal = createProposal;
-window.loadVotingPower = loadVotingPower;
-window.loadProposals  = loadProposals;
-window.showStatus     = showStatus;
+
+    //Voting Power
+
+    async function loadVotingPower() {
+        if (!myAddr) return;
+        try {
+            const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
+            const bocStr = ownerCell.toBoc().toString("base64");
+            const r = await fetch(`${TONCENTER}/runGetMethod`, {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                    address: DAO_ADDRESS,
+                    method: "getVotingPower",
+                    stack: [["tvm.Slice", bocStr]]
+                })
+            });
+            const j = await r.json();
+            if (j.ok && j.result.stack[0]) {
+                const vp = parseInt(j.result.stack[0][1], 16);
+                document.getElementById("vpBalance").textContent = vp + " VP";
+            }
+        } catch(e) {
+            document.getElementById("vpBalance").textContent = "—";
+        }
+    }
+
+    window.depositVP = async function() {
+        const amount = parseInt(document.getElementById("vpDepositAmount").value);
+        if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+        try {
+            showStatus("⏳ Вносим voting power… Подтверди в TonKeeper.", "info");
+            const cell = beginCell()
+                .storeUint(4, 32)       // op = DepositVotingPower
+                .storeUint(amount, 32)  // amount
+                .endCell();
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+            });
+            showStatus("✅ Voting power внесён! Обновляем через 15 сек.", "success");
+            setTimeout(loadVotingPower, 15000);
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    window.withdrawVP = async function() {
+        const amount = parseInt(document.getElementById("vpDepositAmount").value);
+        if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+        try {
+            showStatus("⏳ Выводим voting power… Подтверди в TonKeeper.", "info");
+            const cell = beginCell()
+                .storeUint(5, 32)
+                .storeUint(amount, 32)
+                .endCell();
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+            });
+            showStatus("✅ Voting power выведен! Обновляем через 15 сек.", "success");
+            setTimeout(loadVotingPower, 15000);
+        } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    window.createProposal = createProposal;
+    window.loadVotingPower = loadVotingPower;
+    window.loadProposals  = loadProposals;
+    window.showStatus     = showStatus;
 </script>
 </body>
 </html>
