@@ -113,10 +113,9 @@
 import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
 import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-const DAO_ADDRESS   = "kQDsr6UtbYIMNwNXqXHNbyZI5tgQWuJyx_SFFYjO03YJXjzV";
-const TOKEN_ADDRESS = "EQDff2UhvFsPWdK4ntLtBwz0rJKPt6Xzoho5-RCNNEcSbvTv";
+const DAO_ADDRESS   = "kQB4OIJj0YUltAr7zaiRJ9Xp3gOwFoeU3Zqp8ZS84DkiIJtG";
+const TOKEN_ADDRESS = "EQBLqt1rDRbZMJ2B80UqKEspetZ5GtPhedWnUe2qAiqTpDp9";
 const TONCENTER   = "https://testnet.toncenter.com/api/v2";
-
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json",
@@ -465,13 +464,13 @@ window.depositVP = async function() {
       .storeAddress(Address.parse(DAO_ADDRESS))            // destination = DAO
       .storeAddress(Address.parse(myAddr))                 // responseDestination
       .storeBit(false)                                     // no custom payload
-      .storeCoins(100000000n)                              // forwardAmount = 0.1 TON (для уведомления)
+      .storeCoins(50000000n)                               // forwardAmount = 0.05 TON (для уведомления)
       .storeBit(false)                                     // no forward payload
       .endCell();
 
     await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now()/1000) + 600,
-      messages: [{ address: walletAddr, amount: "300000000", payload: transferCell.toBoc().toString("base64") }]
+      messages: [{ address: walletAddr, amount: "200000000", payload: transferCell.toBoc().toString("base64") }]
     });
     showStatus("✅ MTK переведены в DAO! VP обновится через ~15 сек.", "success");
     setTimeout(() => { loadVotingPower(); }, 15000);
@@ -503,4 +502,3 @@ window.showStatus     = showStatus;
 </script>
 </body>
 </html>
-
