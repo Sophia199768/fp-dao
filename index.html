@@ -117,6 +117,9 @@
     const TOKEN_ADDRESS = "EQDQqFZT54XGa6mSP1tRKqffrie_5h06n9XL14CF4-s4xXPi";
     const TONCENTER   = "https://testnet.toncenter.com/api/v2";
 
+    let jettonBalance = 0;
+    let votingPowerLocked = 0;
+
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json",
         buttonRootId: "ton-connect"
@@ -159,8 +162,8 @@
                     });
                     const bj = await br.json();
                     if (bj.ok && bj.result.stack[0]) {
-                        const bal = parseInt(bj.result.stack[0][1], 16) / 1e9;
-                        document.getElementById("wJetton").textContent = bal.toLocaleString() + " MTK";
+                        jettonBalance = parseInt(bj.result.stack[0][1], 16) / 1e9;
+                        updateJettonDisplay();
                     } else {
                         document.getElementById("wJetton").textContent = "0 MTK";
                     }
@@ -183,6 +186,12 @@
             document.getElementById("refreshBtn").style.display = "none";
         }
     });
+
+    function updateJettonDisplay() {
+        const balance = jettonBalance - votingPowerLocked;
+        document.getElementById("wJetton").textContent =
+            balance.toLocaleString() + " MTK";
+    }
 
     function showStatus(msg, type="info") {
         document.getElementById("statusBox").innerHTML = `<div class="alert a-${type}">${msg}</div>`;
@@ -427,6 +436,8 @@
             const j = await r.json();
             if (j.ok && j.result.stack[0]) {
                 const vp = parseInt(j.result.stack[0][1], 16);
+                votingPowerLocked = vp
+                updateJettonDisplay();
                 document.getElementById("vpBalance").textContent = vp + " VP";
             }
         } catch(e) {
@@ -466,9 +477,13 @@
                 messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
             });
             showStatus("✅ Voting power выведен! Обновляем через 15 сек.", "success");
-            setTimeout(loadVotingPower, 15000);
+            setTimeout(() => {
+                loadVotingPower();
+                loadJettonBalance();
+            }, 15000);
         } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
     }
+
 
     window.createProposal = createProposal;
     window.loadVotingPower = loadVotingPower;
