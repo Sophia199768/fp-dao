@@ -19,6 +19,21 @@ message(5) WithdrawVotingPower {
     amount: Int as uint32;
 }
 
+message(6) MintVotingPower {
+    user: Address;
+    amount: Int as uint32;
+}
+
+message(7) BurnAndBridgeBack {
+    amount: Int as uint32;
+    stacksAddress: String;
+}
+
+message(0x111) BridgeOutEvent {
+    amount: Int as uint32;
+    stacksAddress: String;
+}
+
 message(0x7362d09c) JettonTransferNotification {
     queryId: Int as uint64;
     amount: Int as coins;
@@ -38,6 +53,8 @@ struct Proposal {
 
 contract FpDao with Deployable {
 
+    oracleAddress: Address;
+
     jettonMaster: Address;
 
     proposals: map<Int, Proposal>;
@@ -50,7 +67,8 @@ contract FpDao with Deployable {
 
     version: Int as uint32;
 
-    init(jettonMaster: Address, version: Int) {
+    init(jettonMaster: Address, version: Int, oracle: Address) {
+        self.oracleAddress = oracle;
         self.jettonMaster  = jettonMaster;
         self.proposalCount = 0;
         self.proposals     = emptyMap();
@@ -216,6 +234,45 @@ contract FpDao with Deployable {
         self.reply("Proposal executed".asComment());
     }
 
+    // ===============================
+    // MintVotingPower
+    // ===============================
+
+    receive(msg: MintVotingPower) {
+        require(sender() == self.oracleAddress, "Only oracle allowed");
+
+        let addrInt: Int = msg.user.asSlice().loadUint(256);
+        let currentVP: Int? = self.votingPower.get(addrInt);
+
+        if (currentVP == null) {
+            self.votingPower.set(addrInt, msg.amount);
+        } else {
+            self.votingPower.set(addrInt, (currentVP!!) + msg.amount);
+        }
+    }
+
+    // ===============================
+    //  BurnAndBridgeBack
+    // ===============================
+    receive(msg: BurnAndBridgeBack) {
+        let addrInt: Int = sender().asSlice().loadUint(256);
+
+        let currentVP_opt: Int? = self.votingPower.get(addrInt);
+
+        let currentVP: Int = 0;
+        if (currentVP_opt != null) {
+            currentVP = currentVP_opt!!;
+        }
+
+        require(currentVP >= msg.amount, "Insufficient balance");
+        self.votingPower.set(addrInt, currentVP - msg.amount);
+
+        emit(BridgeOutEvent{
+            amount: msg.amount,
+            stacksAddress: msg.stacksAddress
+        }.toCell());
+    }
+    
     // ===============================
     // Getters
     // ===============================

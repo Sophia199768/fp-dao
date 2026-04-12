@@ -962,12 +962,171 @@ export function dictValueParserWithdrawVotingPower(): DictionaryValue<WithdrawVo
     }
 }
 
+export type MintVotingPower = {
+    $$type: 'MintVotingPower';
+    user: Address;
+    amount: bigint;
+}
+
+export function storeMintVotingPower(src: MintVotingPower) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(6, 32);
+        b_0.storeAddress(src.user);
+        b_0.storeUint(src.amount, 32);
+    };
+}
+
+export function loadMintVotingPower(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 6) { throw Error('Invalid prefix'); }
+    const _user = sc_0.loadAddress();
+    const _amount = sc_0.loadUintBig(32);
+    return { $$type: 'MintVotingPower' as const, user: _user, amount: _amount };
+}
+
+export function loadTupleMintVotingPower(source: TupleReader) {
+    const _user = source.readAddress();
+    const _amount = source.readBigNumber();
+    return { $$type: 'MintVotingPower' as const, user: _user, amount: _amount };
+}
+
+export function loadGetterTupleMintVotingPower(source: TupleReader) {
+    const _user = source.readAddress();
+    const _amount = source.readBigNumber();
+    return { $$type: 'MintVotingPower' as const, user: _user, amount: _amount };
+}
+
+export function storeTupleMintVotingPower(source: MintVotingPower) {
+    const builder = new TupleBuilder();
+    builder.writeAddress(source.user);
+    builder.writeNumber(source.amount);
+    return builder.build();
+}
+
+export function dictValueParserMintVotingPower(): DictionaryValue<MintVotingPower> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeMintVotingPower(src)).endCell());
+        },
+        parse: (src) => {
+            return loadMintVotingPower(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type BurnAndBridgeBack = {
+    $$type: 'BurnAndBridgeBack';
+    amount: bigint;
+    stacksAddress: string;
+}
+
+export function storeBurnAndBridgeBack(src: BurnAndBridgeBack) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(7, 32);
+        b_0.storeUint(src.amount, 32);
+        b_0.storeStringRefTail(src.stacksAddress);
+    };
+}
+
+export function loadBurnAndBridgeBack(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 7) { throw Error('Invalid prefix'); }
+    const _amount = sc_0.loadUintBig(32);
+    const _stacksAddress = sc_0.loadStringRefTail();
+    return { $$type: 'BurnAndBridgeBack' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function loadTupleBurnAndBridgeBack(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _stacksAddress = source.readString();
+    return { $$type: 'BurnAndBridgeBack' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function loadGetterTupleBurnAndBridgeBack(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _stacksAddress = source.readString();
+    return { $$type: 'BurnAndBridgeBack' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function storeTupleBurnAndBridgeBack(source: BurnAndBridgeBack) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.amount);
+    builder.writeString(source.stacksAddress);
+    return builder.build();
+}
+
+export function dictValueParserBurnAndBridgeBack(): DictionaryValue<BurnAndBridgeBack> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeBurnAndBridgeBack(src)).endCell());
+        },
+        parse: (src) => {
+            return loadBurnAndBridgeBack(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type BridgeOutEvent = {
+    $$type: 'BridgeOutEvent';
+    amount: bigint;
+    stacksAddress: string;
+}
+
+export function storeBridgeOutEvent(src: BridgeOutEvent) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(273, 32);
+        b_0.storeUint(src.amount, 32);
+        b_0.storeStringRefTail(src.stacksAddress);
+    };
+}
+
+export function loadBridgeOutEvent(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 273) { throw Error('Invalid prefix'); }
+    const _amount = sc_0.loadUintBig(32);
+    const _stacksAddress = sc_0.loadStringRefTail();
+    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function loadTupleBridgeOutEvent(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _stacksAddress = source.readString();
+    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function loadGetterTupleBridgeOutEvent(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _stacksAddress = source.readString();
+    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+}
+
+export function storeTupleBridgeOutEvent(source: BridgeOutEvent) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.amount);
+    builder.writeString(source.stacksAddress);
+    return builder.build();
+}
+
+export function dictValueParserBridgeOutEvent(): DictionaryValue<BridgeOutEvent> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeBridgeOutEvent(src)).endCell());
+        },
+        parse: (src) => {
+            return loadBridgeOutEvent(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type JettonTransferNotification = {
     $$type: 'JettonTransferNotification';
     queryId: bigint;
     amount: bigint;
     sender: Address;
-    forwardPayload: Slice;
+    forwardPayload: Cell | null;
 }
 
 export function storeJettonTransferNotification(src: JettonTransferNotification) {
@@ -977,7 +1136,7 @@ export function storeJettonTransferNotification(src: JettonTransferNotification)
         b_0.storeUint(src.queryId, 64);
         b_0.storeCoins(src.amount);
         b_0.storeAddress(src.sender);
-        b_0.storeBuilder(src.forwardPayload.asBuilder());
+        if (src.forwardPayload !== null && src.forwardPayload !== undefined) { b_0.storeBit(true).storeRef(src.forwardPayload); } else { b_0.storeBit(false); }
     };
 }
 
@@ -987,7 +1146,7 @@ export function loadJettonTransferNotification(slice: Slice) {
     const _queryId = sc_0.loadUintBig(64);
     const _amount = sc_0.loadCoins();
     const _sender = sc_0.loadAddress();
-    const _forwardPayload = sc_0;
+    const _forwardPayload = sc_0.loadBit() ? sc_0.loadRef() : null;
     return { $$type: 'JettonTransferNotification' as const, queryId: _queryId, amount: _amount, sender: _sender, forwardPayload: _forwardPayload };
 }
 
@@ -995,7 +1154,7 @@ export function loadTupleJettonTransferNotification(source: TupleReader) {
     const _queryId = source.readBigNumber();
     const _amount = source.readBigNumber();
     const _sender = source.readAddress();
-    const _forwardPayload = source.readCell().asSlice();
+    const _forwardPayload = source.readCellOpt();
     return { $$type: 'JettonTransferNotification' as const, queryId: _queryId, amount: _amount, sender: _sender, forwardPayload: _forwardPayload };
 }
 
@@ -1003,7 +1162,7 @@ export function loadGetterTupleJettonTransferNotification(source: TupleReader) {
     const _queryId = source.readBigNumber();
     const _amount = source.readBigNumber();
     const _sender = source.readAddress();
-    const _forwardPayload = source.readCell().asSlice();
+    const _forwardPayload = source.readCellOpt();
     return { $$type: 'JettonTransferNotification' as const, queryId: _queryId, amount: _amount, sender: _sender, forwardPayload: _forwardPayload };
 }
 
@@ -1012,7 +1171,7 @@ export function storeTupleJettonTransferNotification(source: JettonTransferNotif
     builder.writeNumber(source.queryId);
     builder.writeNumber(source.amount);
     builder.writeAddress(source.sender);
-    builder.writeSlice(source.forwardPayload.asCell());
+    builder.writeCell(source.forwardPayload);
     return builder.build();
 }
 
@@ -1023,89 +1182,6 @@ export function dictValueParserJettonTransferNotification(): DictionaryValue<Jet
         },
         parse: (src) => {
             return loadJettonTransferNotification(src.loadRef().beginParse());
-        }
-    }
-}
-
-export type JettonTransfer = {
-    $$type: 'JettonTransfer';
-    queryId: bigint;
-    amount: bigint;
-    destination: Address;
-    responseDestination: Address;
-    customPayload: Cell | null;
-    forwardTonAmount: bigint;
-    forwardPayload: Slice;
-}
-
-export function storeJettonTransfer(src: JettonTransfer) {
-    return (builder: Builder) => {
-        const b_0 = builder;
-        b_0.storeUint(260734629, 32);
-        b_0.storeUint(src.queryId, 64);
-        b_0.storeCoins(src.amount);
-        b_0.storeAddress(src.destination);
-        b_0.storeAddress(src.responseDestination);
-        if (src.customPayload !== null && src.customPayload !== undefined) { b_0.storeBit(true).storeRef(src.customPayload); } else { b_0.storeBit(false); }
-        b_0.storeCoins(src.forwardTonAmount);
-        b_0.storeBuilder(src.forwardPayload.asBuilder());
-    };
-}
-
-export function loadJettonTransfer(slice: Slice) {
-    const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 260734629) { throw Error('Invalid prefix'); }
-    const _queryId = sc_0.loadUintBig(64);
-    const _amount = sc_0.loadCoins();
-    const _destination = sc_0.loadAddress();
-    const _responseDestination = sc_0.loadAddress();
-    const _customPayload = sc_0.loadBit() ? sc_0.loadRef() : null;
-    const _forwardTonAmount = sc_0.loadCoins();
-    const _forwardPayload = sc_0;
-    return { $$type: 'JettonTransfer' as const, queryId: _queryId, amount: _amount, destination: _destination, responseDestination: _responseDestination, customPayload: _customPayload, forwardTonAmount: _forwardTonAmount, forwardPayload: _forwardPayload };
-}
-
-export function loadTupleJettonTransfer(source: TupleReader) {
-    const _queryId = source.readBigNumber();
-    const _amount = source.readBigNumber();
-    const _destination = source.readAddress();
-    const _responseDestination = source.readAddress();
-    const _customPayload = source.readCellOpt();
-    const _forwardTonAmount = source.readBigNumber();
-    const _forwardPayload = source.readCell().asSlice();
-    return { $$type: 'JettonTransfer' as const, queryId: _queryId, amount: _amount, destination: _destination, responseDestination: _responseDestination, customPayload: _customPayload, forwardTonAmount: _forwardTonAmount, forwardPayload: _forwardPayload };
-}
-
-export function loadGetterTupleJettonTransfer(source: TupleReader) {
-    const _queryId = source.readBigNumber();
-    const _amount = source.readBigNumber();
-    const _destination = source.readAddress();
-    const _responseDestination = source.readAddress();
-    const _customPayload = source.readCellOpt();
-    const _forwardTonAmount = source.readBigNumber();
-    const _forwardPayload = source.readCell().asSlice();
-    return { $$type: 'JettonTransfer' as const, queryId: _queryId, amount: _amount, destination: _destination, responseDestination: _responseDestination, customPayload: _customPayload, forwardTonAmount: _forwardTonAmount, forwardPayload: _forwardPayload };
-}
-
-export function storeTupleJettonTransfer(source: JettonTransfer) {
-    const builder = new TupleBuilder();
-    builder.writeNumber(source.queryId);
-    builder.writeNumber(source.amount);
-    builder.writeAddress(source.destination);
-    builder.writeAddress(source.responseDestination);
-    builder.writeCell(source.customPayload);
-    builder.writeNumber(source.forwardTonAmount);
-    builder.writeSlice(source.forwardPayload.asCell());
-    return builder.build();
-}
-
-export function dictValueParserJettonTransfer(): DictionaryValue<JettonTransfer> {
-    return {
-        serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeJettonTransfer(src)).endCell());
-        },
-        parse: (src) => {
-            return loadJettonTransfer(src.loadRef().beginParse());
         }
     }
 }
@@ -1193,11 +1269,12 @@ export function dictValueParserProposal(): DictionaryValue<Proposal> {
 
 export type FpDao$Data = {
     $$type: 'FpDao$Data';
+    oracleAddress: Address;
+    votingPower: Dictionary<bigint, bigint>;
     jettonMaster: Address;
     proposals: Dictionary<bigint, Proposal>;
     proposalCount: bigint;
     voted: Dictionary<bigint, boolean>;
-    votingPower: Dictionary<bigint, bigint>;
     deposits: Dictionary<bigint, bigint>;
     version: bigint;
 }
@@ -1205,12 +1282,13 @@ export type FpDao$Data = {
 export function storeFpDao$Data(src: FpDao$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
+        b_0.storeAddress(src.oracleAddress);
+        b_0.storeDict(src.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_0.storeAddress(src.jettonMaster);
         b_0.storeDict(src.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal());
         b_0.storeUint(src.proposalCount, 32);
-        b_0.storeDict(src.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool());
         const b_1 = new Builder();
-        b_1.storeDict(src.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
+        b_1.storeDict(src.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool());
         b_1.storeDict(src.deposits, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_1.storeUint(src.version, 32);
         b_0.storeRef(b_1.endCell());
@@ -1219,46 +1297,50 @@ export function storeFpDao$Data(src: FpDao$Data) {
 
 export function loadFpDao$Data(slice: Slice) {
     const sc_0 = slice;
+    const _oracleAddress = sc_0.loadAddress();
+    const _votingPower = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_0);
     const _jettonMaster = sc_0.loadAddress();
     const _proposals = Dictionary.load(Dictionary.Keys.BigInt(257), dictValueParserProposal(), sc_0);
     const _proposalCount = sc_0.loadUintBig(32);
-    const _voted = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), sc_0);
     const sc_1 = sc_0.loadRef().beginParse();
-    const _votingPower = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_1);
+    const _voted = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), sc_1);
     const _deposits = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_1);
     const _version = sc_1.loadUintBig(32);
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version };
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
 }
 
 export function loadTupleFpDao$Data(source: TupleReader) {
+    const _oracleAddress = source.readAddress();
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _jettonMaster = source.readAddress();
     const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
-    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _deposits = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version };
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
 }
 
 export function loadGetterTupleFpDao$Data(source: TupleReader) {
+    const _oracleAddress = source.readAddress();
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _jettonMaster = source.readAddress();
     const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
-    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _deposits = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version };
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
 }
 
 export function storeTupleFpDao$Data(source: FpDao$Data) {
     const builder = new TupleBuilder();
+    builder.writeAddress(source.oracleAddress);
+    builder.writeCell(source.votingPower.size > 0 ? beginCell().storeDictDirect(source.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeAddress(source.jettonMaster);
     builder.writeCell(source.proposals.size > 0 ? beginCell().storeDictDirect(source.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal()).endCell() : null);
     builder.writeNumber(source.proposalCount);
     builder.writeCell(source.voted.size > 0 ? beginCell().storeDictDirect(source.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool()).endCell() : null);
-    builder.writeCell(source.votingPower.size > 0 ? beginCell().storeDictDirect(source.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeCell(source.deposits.size > 0 ? beginCell().storeDictDirect(source.deposits, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeNumber(source.version);
     return builder.build();
@@ -1279,6 +1361,7 @@ export function dictValueParserFpDao$Data(): DictionaryValue<FpDao$Data> {
     $$type: 'FpDao_init_args';
     jettonMaster: Address;
     version: bigint;
+    oracle: Address;
 }
 
 function initFpDao_init_args(src: FpDao_init_args) {
@@ -1286,14 +1369,15 @@ function initFpDao_init_args(src: FpDao_init_args) {
         const b_0 = builder;
         b_0.storeAddress(src.jettonMaster);
         b_0.storeInt(src.version, 257);
+        b_0.storeAddress(src.oracle);
     };
 }
 
-async function FpDao_init(jettonMaster: Address, version: bigint) {
-    const __code = Cell.fromHex('b5ee9c724102260100097a000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010f020271020a02012003050181b9f0ced44d0d200018e1afa40f404d31fd401d0f404f404f404d31f301047104610456c178e13fa40810101d7005902d101706d6d6d58046d01e25506db3c6c71804014a8307db3c810101530450334133f40c6fa19401d70030925b6de2206e923070e0206ef2d0801b020271060801aca86fed44d0d200018e1afa40f404d31fd401d0f404f404f404d31f301047104610456c178e13fa40810101d7005902d101706d6d6d58046d01e25506db3c6c71206e92306d99206ef2d0806f276f07e2206e92306dde07005a810101270259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2017ca8e1ed44d0d200018e1afa40f404d31fd401d0f404f404f404d31f301047104610456c178e13fa40810101d7005902d101706d6d6d58046d01e2db3c6c71090002260201580b0d017db5263da89a1a400031c35f481e809a63fa803a1e809e809e809a63e60208e208c208ad82f1c27f481020203ae00b205a202e0dadadab008da03c5b678d8e300c0002240181b722bda89a1a400031c35f481e809a63fa803a1e809e809e809a63e60208e208c208ad82f1c27f481020203ae00b205a202e0dadadab008da03c4aa0db678d8e300e014a8307db3c810101530350334133f40c6fa19401d70030925b6de2206e923070e0206ef2d0801b03ee30eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1afa40f404d31fd401d0f404f404f404d31f301047104610456c178e13fa40810101d7005902d101706d6d6d58046d01e208925f08e07027d74920c21f9138e30d20c00028c121b0e302c000925f08e30df2c08210242504363107d31f2182107362d09cbae30221c005e30221c001e30221c0021114171a02f8313706d33f31fa00fa40308307db3c0182103b9aca00a90481010154530052404133f40c6fa19401d70030925b6de2206e8e1c30810101541300546350216e955b59f45a3098c801cf004133f442e28e2281010101206ef2d08022a05313104659216e955b59f45a3098c801cf004133f442e2e281010154580052401b1201fe4133f40c6fa19401d70030925b6de2206e8e1c30810101201049433019216e955b59f45a3098c801cf004133f442e28e2581010101206ef2d0805004a023104910391029216e955b59f45a3098c801cf004133f442e2e210461035440302c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54130004db3102ea313706d31f30f8428307db3c81010154530052304133f40c6fa19401d70030925b6de281010154590052404133f40c6fa19401d70030925b6de28200f9b6216eb39821206ef2d08025be9170e2f2f4815cdc226eb39822206ef2d08025be9170e2f2f481010102206ef2d08024a1532310471037591b1501fe216e955b59f45a3098c801cf004133f442e281010104206ef2d08023a124104a10351025216e955b59f45a3098c801cf004133f442e2821005f5e1007f7070c8821084cc682d01cb1f7001cb3f0b82103b9aca00a81bfa02f842cf16f842cf161aca0070fa0219ca00c9270350997050346d036d5520c8cf8580ca00cf844016009cce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010465513c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db3102fe313706d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f4f8428307db3c810101530450334133f40c6fa19401d70030925b6de28200a72b216eb39801206ef2d080c200923170e2f2f424f82358a0810101702070f8422606105859c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec910361b1801be206e953059f45a30944133f415e202a488105710365e311023f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db311900280000000050726f706f73616c206372656174656404fe8f77313706d31fd200d31f30820090af5336b9f2f48200f7e021c200f2f4268101012459f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f27813f86f82324b9f2f4f8428307db3c2a82103b9aca00a82182103b9aca00a908a02d8101012271e021c003e3021b1c20230006d7013001f64133f40c6fa19401d70030925b6de28200e7e9216e92317f9801206ef2d080c000e2f2f4810101545d0052404133f40c6fa19401d70030925b6de2815cdc216eb39821206ef2d0802cbe9170e2f2f481010101206ef2d0802ba121104f1023102f216e955b59f45a3098c801cf004133f442e21c810101500c7f711d02f6216e955b59f45a3098c801cf004133f442e208935036a0945026a058e210450350248101010ac855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec910364440206e953059f45a30944133f415e2881057161035414013f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb001e1f002000000000566f746520636f756e7465640046c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db3101f4313706d31f30820090af5314b9f2f4248101012259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f278200a398f82324bef2f48200cdcb02b312f2f4151443307f8101014717c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91036122101ba206e953059f45a30944133f415e2881057161035414013f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db3122002a0000000050726f706f73616c20657865637574656400dc218210946a98b6ba8e62313706d33f30c8018210aff90f5758cb1fcb3fc91057104610354430f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db31e030004e303610465513c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54005e06c21f8e2710465513c87f01ca0055605067ce14f40012cb1f01c8f40012f40012f40012cb1fcdc9ed54db31e05f079adbf012');
+async function FpDao_init(jettonMaster: Address, version: bigint, oracle: Address) {
+    const __code = Cell.fromHex('b5ee9c7241022901000acf00022cff008e88f4a413f4bcf2c80bed53208e8130e1ed43d9010f020271020a0201200305018db9f0ced44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e25507db3c6c81804014a8307db3c810101530850334133f40c6fa19401d70030925b6de2206e923070e0206ef2d08023020271060801b8a86fed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e25507db3c6c81206e92306d99206ef2d0806f276f07e2206e92306dde07005a810101260259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e20188a8e1ed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e2db3c6c81090002250201580b0d0189b5263da89a1a400031c39f481e809f481a803a1e809a63fe809e809a63e6020b020ae20acd8311c2ff481020203ae01f480aa4007a2b004e0dadada862ada03c5b678d90300c000223018db722bda89a1a400031c39f481e809f481a803a1e809a63fe809e809a63e6020b020ae20acd8311c2ff481020203ae01f480aa4007a2b004e0dadada862ada03c4aa0fb678d90300e014a8307db3c810101530350334133f40c6fa19401d70030925b6de2206e923070e0206ef2d0802304f2eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e209925f09e07028d74920c21f9139e30d20c00029c121b0e302c000925f09e30d1026272804363108d31f2182107362d09cbae30221c005e30221c001e30221c0021113161902f8313807d33f31fa00fa40308307db3c0182103b9aca00a90481010154570052404133f40c6fa19401d70030925b6de2206e8e1c30810101541700546390216e955b59f45a3098c801cf004133f442e28e2281010101206ef2d08022a05313104a59216e955b59f45a3098c801cf004133f442e2e28101015459005240231201be4133f40c6fa19401d70030925b6de2206e8e1c3081010120104a433018216e955b59f45a3098c801cf004133f442e28e2581010101206ef2d0805008a027104a10381028216e955b59f45a3098c801cf004133f442e2e210571046103544032102ea313807d31f30f8428307db3c81010154570052304133f40c6fa19401d70030925b6de2810101545a0052404133f40c6fa19401d70030925b6de28200f9b6216eb39821206ef2d08025be9170e2f2f4815cdc226eb39822206ef2d08025be9170e2f2f481010102206ef2d08024a15323104b103b59231401fe216e955b59f45a3098c801cf004133f442e281010108206ef2d08023a128104b10391029216e955b59f45a3098c801cf004133f442e2821005f5e1007f7070c8821084cc682d01cb1f7001cb3f0c82103b9aca00a81cfa02f842cf16f842cf161bca0070fa021aca00c9260350aa7050346d036d5520c8cf8580ca00cf84401500a0ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3102fc313807d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f4f8428307db3c810101530850334133f40c6fa19401d70030925b6de2817c79216eb39801206ef2d080c200923170e2f2f423f82358a0810101702070f8422606105859c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91035231701c2206e953059f45a30944133f415e201a4881068105710464540f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db311800280000000050726f706f73616c206372656174656403fc8f78313807d31fd200d31f30820090af5335b9f2f48200f7e021c200f2f4258101012459f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f2782009a17f82324b9f2f4f8428307db3c2a82103b9aca00a82182103b9aca00a908a02c8101012271e021c003231a1d01fe4133f40c6fa19401d70030925b6de28200e7e9216e92317f9801206ef2d080c000e2f2f48101012056125422434133f40c6fa19401d70030925b6de2815cdc216eb39821206ef2d0802cbe9170e2f2f481010101206ef2d0802ba12104111304102302111302216e955b59f45a3098c801cf004133f442e21b8101010111101b02fa7f71216e955b59f45a3098c801cf004133f442e208935036a0945026a058e2104503502481010109c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9154330206e953059f45a30944133f415e288106810571046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb001c21002000000000566f746520636f756e74656402fe8ef9313807d31f30820090af5313b9f2f4238101012259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f27813d40f82324bef2f48200cdcb02b312f2f4151443307f8101014717c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9103512e021c0061e2001c0206e953059f45a30944133f415e288106810571046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db311f002a0000000050726f706f73616c20657865637574656404fe8f77313807fa40d31f308176abf84229c705f2f4018307db3c81010154570052304133f40c6fa19401d70030925b6de2206e8e1a3081010120104813216e955b59f45a3098c801cf004133f442e28e2181010101206ef2d0805003a0221048216e955b59f45a3098c801cf004133f442e2e210570610354403e021c007e30223212225004ac87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3102d4313807d31fd430d0f8428307db3c81010154580052304133f40c6fa19401d70030925b6de270216eb39630206ef2d0809131e28200d5575314bef2f48101015114a121104a1023216e955b59f45a3098c801cf004133f442e206c8598101115003cb1fcb1f01c8cecdc923240006d701300082c88258c000000000000000000000000101cb67ccc970fb0010575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3100e6218210946a98b6ba8e67313807d33f30c8018210aff90f5758cb1fcb3fc91068105710461035443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db31e0300052303710575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54006207c21f8e2910575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db31e05f080006f2c082d2a14b3f');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initFpDao_init_args({ $$type: 'FpDao_init_args', jettonMaster, version })(builder);
+    initFpDao_init_args({ $$type: 'FpDao_init_args', jettonMaster, version, oracle })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -1336,13 +1420,15 @@ export const FpDao_errors = {
     136: { message: "Invalid standard address" },
     138: { message: "Not a basechain address" },
     4505: { message: "Duration must be >= 60 seconds" },
-    16262: { message: "Voting period has ended" },
+    15680: { message: "Voting active" },
     19000: { message: "Description cannot be empty" },
     23772: { message: "Insufficient voting power" },
+    30379: { message: "Only oracle allowed" },
+    31865: { message: "Must have voting power" },
     37039: { message: "Proposal not found" },
-    41880: { message: "Voting still active" },
-    42795: { message: "Must have voting power to create proposal" },
+    39447: { message: "Voting ended" },
     52683: { message: "Already executed" },
+    54615: { message: "Insufficient balance" },
     59369: { message: "Already voted" },
     63456: { message: "Power must be positive" },
     63926: { message: "Insufficient deposit" },
@@ -1386,13 +1472,15 @@ export const FpDao_errors_backward = {
     "Invalid standard address": 136,
     "Not a basechain address": 138,
     "Duration must be >= 60 seconds": 4505,
-    "Voting period has ended": 16262,
+    "Voting active": 15680,
     "Description cannot be empty": 19000,
     "Insufficient voting power": 23772,
+    "Only oracle allowed": 30379,
+    "Must have voting power": 31865,
     "Proposal not found": 37039,
-    "Voting still active": 41880,
-    "Must have voting power to create proposal": 42795,
+    "Voting ended": 39447,
     "Already executed": 52683,
+    "Insufficient balance": 54615,
     "Already voted": 59369,
     "Power must be positive": 63456,
     "Insufficient deposit": 63926,
@@ -1416,10 +1504,12 @@ const FpDao_types: ABIType[] = [
     {"name":"Vote","header":2,"fields":[{"name":"proposalId","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"support","type":{"kind":"simple","type":"bool","optional":false}},{"name":"power","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
     {"name":"ExecuteProposal","header":3,"fields":[{"name":"proposalId","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
     {"name":"WithdrawVotingPower","header":5,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
-    {"name":"JettonTransferNotification","header":1935855772,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"sender","type":{"kind":"simple","type":"address","optional":false}},{"name":"forwardPayload","type":{"kind":"simple","type":"slice","optional":false,"format":"remainder"}}]},
-    {"name":"JettonTransfer","header":260734629,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"destination","type":{"kind":"simple","type":"address","optional":false}},{"name":"responseDestination","type":{"kind":"simple","type":"address","optional":false}},{"name":"customPayload","type":{"kind":"simple","type":"cell","optional":true}},{"name":"forwardTonAmount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"forwardPayload","type":{"kind":"simple","type":"slice","optional":false,"format":"remainder"}}]},
+    {"name":"MintVotingPower","header":6,"fields":[{"name":"user","type":{"kind":"simple","type":"address","optional":false}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"BurnAndBridgeBack","header":7,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"stacksAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"BridgeOutEvent","header":273,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"stacksAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"JettonTransferNotification","header":1935855772,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"sender","type":{"kind":"simple","type":"address","optional":false}},{"name":"forwardPayload","type":{"kind":"simple","type":"cell","optional":true}}]},
     {"name":"Proposal","header":null,"fields":[{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"votesFor","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"votesAgainst","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"deadline","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"executed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"proposer","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"FpDao$Data","header":null,"fields":[{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"int","value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"votingPower","type":{"kind":"dict","key":"int","value":"int"}},{"name":"deposits","type":{"kind":"dict","key":"int","value":"int"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"FpDao$Data","header":null,"fields":[{"name":"oracleAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"votingPower","type":{"kind":"dict","key":"int","value":"int"}},{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"int","value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"deposits","type":{"kind":"dict","key":"int","value":"int"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
 ]
 
 const FpDao_opcodes = {
@@ -1430,8 +1520,10 @@ const FpDao_opcodes = {
     "Vote": 2,
     "ExecuteProposal": 3,
     "WithdrawVotingPower": 5,
+    "MintVotingPower": 6,
+    "BurnAndBridgeBack": 7,
+    "BridgeOutEvent": 273,
     "JettonTransferNotification": 1935855772,
-    "JettonTransfer": 260734629,
 }
 
 const FpDao_getters: ABIGetter[] = [
@@ -1458,6 +1550,8 @@ const FpDao_receivers: ABIReceiver[] = [
     {"receiver":"internal","message":{"kind":"typed","type":"CreateProposal"}},
     {"receiver":"internal","message":{"kind":"typed","type":"Vote"}},
     {"receiver":"internal","message":{"kind":"typed","type":"ExecuteProposal"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"MintVotingPower"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"BurnAndBridgeBack"}},
     {"receiver":"internal","message":{"kind":"typed","type":"Deploy"}},
 ]
 
@@ -1468,12 +1562,12 @@ export class FpDao implements Contract {
     public static readonly errors = FpDao_errors_backward;
     public static readonly opcodes = FpDao_opcodes;
     
-    static async init(jettonMaster: Address, version: bigint) {
-        return await FpDao_init(jettonMaster, version);
+    static async init(jettonMaster: Address, version: bigint, oracle: Address) {
+        return await FpDao_init(jettonMaster, version, oracle);
     }
     
-    static async fromInit(jettonMaster: Address, version: bigint) {
-        const __gen_init = await FpDao_init(jettonMaster, version);
+    static async fromInit(jettonMaster: Address, version: bigint, oracle: Address) {
+        const __gen_init = await FpDao_init(jettonMaster, version, oracle);
         const address = contractAddress(0, __gen_init);
         return new FpDao(address, __gen_init);
     }
@@ -1496,7 +1590,7 @@ export class FpDao implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | string | JettonTransferNotification | WithdrawVotingPower | CreateProposal | Vote | ExecuteProposal | Deploy) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | string | JettonTransferNotification | WithdrawVotingPower | CreateProposal | Vote | ExecuteProposal | MintVotingPower | BurnAndBridgeBack | Deploy) {
         
         let body: Cell | null = null;
         if (message === null) {
@@ -1519,6 +1613,12 @@ export class FpDao implements Contract {
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'ExecuteProposal') {
             body = beginCell().store(storeExecuteProposal(message)).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'MintVotingPower') {
+            body = beginCell().store(storeMintVotingPower(message)).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'BurnAndBridgeBack') {
+            body = beginCell().store(storeBurnAndBridgeBack(message)).endCell();
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'Deploy') {
             body = beginCell().store(storeDeploy(message)).endCell();
