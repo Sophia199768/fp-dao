@@ -4,7 +4,7 @@ import { NetworkProvider } from "@ton/blueprint";
 
 export async function run(provider: NetworkProvider) {
     const JETTON_MASTER = Address.parse("EQD1vNr3xwMoTAbv2i49rf7aApHnXKx2UMKWLNY6cjkz7fP9");
-    const VERSION = 6n;
+    const VERSION = 7n;
 
     let oracle: Address;
 
