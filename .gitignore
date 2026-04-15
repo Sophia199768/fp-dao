@@ -4,6 +4,8 @@ build
 dist
 .DS_Store
 package.ts
+.oracle-state.json
+.env
 
 # VS Code
 .vscode/*
