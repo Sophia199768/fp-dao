@@ -3,8 +3,8 @@ import { FpDao } from "../wrappers/FpDao";
 import { NetworkProvider } from "@ton/blueprint";
 
 export async function run(provider: NetworkProvider) {
-    const JETTON_MASTER = Address.parse("EQD1vNr3xwMoTAbv2i49rf7aApHnXKx2UMKWLNY6cjkz7fP9");
-    const VERSION = 7n;
+    const JETTON_MASTER = Address.parse("EQDwTtV3R11WxyEGxWH4fceUR5m2LgF2QVc8q33j3cma9RmQ");
+    const VERSION = 8n;
 
     let oracle: Address;
 
