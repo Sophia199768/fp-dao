@@ -80,6 +80,14 @@
             <button class="btn btn-green" onclick="depositVP()" style="margin-right:8px">➕ Внести</button>
             <button class="btn btn-gray" onclick="withdrawVP()">➖ Вывести</button>
         </div>
+        <div style="margin-top:20px; border-top: 1px solid #1e1e4a; padding-top: 15px;">
+            <div class="info-label" style="color: #5b8dee;">🌉 Перевести в Stacks (Bridge Out)</div>
+            <label>Адрес в Stacks (Principal)</label>
+            <input type="text" id="stacksAddr" placeholder="ST1PQ..." style="margin-bottom:10px">
+            <label>Количество для вывода</label>
+            <input type="number" id="bridgeAmount" placeholder="Например: 50">
+            <button class="btn btn-blue" onclick="bridgeToStacks()">🚀 Отправить в Stacks</button>
+        </div>
     </div>
     <div class="card" id="transferCard" style="display:none">
         <div class="card-title">💸 Перевод MTK токенов</div>
@@ -482,6 +490,40 @@
                 loadJettonBalance();
             }, 15000);
         } catch(e) { showStatus("❌ " + (e.message||"Ошибка"), "error"); }
+    }
+
+    window.bridgeToStacks = async function() {
+        const amount = parseInt(document.getElementById("bridgeAmount").value);
+        const stxAddr = document.getElementById("stacksAddr").value.trim();
+
+        if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+        if (!stxAddr) { showStatus("❌ Введи адрес получателя в Stacks", "error"); return; }
+
+        try {
+            showStatus("⏳ Готовим транзакцию моста…", "info");
+
+            const cell = beginCell()
+                .storeUint(7, 32)
+                .storeUint(amount, 32)
+                .storeStringRefTail(stxAddr)
+                .endCell();
+
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now()/1000) + 600,
+                messages: [{
+                    address: DAO_ADDRESS,
+                    amount: "100000000",
+                    payload: cell.toBoc().toString("base64")
+                }]
+            });
+
+            showStatus("✅ Запрос в мост отправлен! Оракул обработает его через ~30 сек.", "success");
+            document.getElementById("bridgeAmount").value = "";
+            document.getElementById("stacksAddr").value = "";
+            setTimeout(loadVotingPower, 15000);
+        } catch(e) {
+            showStatus("❌ " + (e.message || "Ошибка"), "error");
+        }
     }
 
 
