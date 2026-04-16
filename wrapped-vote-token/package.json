@@ -1,0 +1,22 @@
+{
+  "name": "wrapped-vote-token",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cross-chain wrapped token with oracle mint (Clarinet)",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:reports": "vitest run -- --coverage --costs"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@stacks/clarinet-sdk": "^3.16.0",
+    "@stacks/clarinet-sdk-wasm": "^15.16.0",
+    "@stacks/transactions": "^7.4.0",
+    "@types/node": "^22.17.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "vitest-environment-clarinet": "^3.0.2"
+  }
+}

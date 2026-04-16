@@ -5,6 +5,7 @@ dist
 .DS_Store
 package.ts
 .oracle-state.json
+.oracle-monitor-state.json
 .env
 
 # VS Code

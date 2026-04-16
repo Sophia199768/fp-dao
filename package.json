@@ -7,12 +7,17 @@
         "build": "blueprint build",
         "tact:sync": "tact --config tact.config.json -p FpDao && node -e \"require('fs').copyFileSync('build/FpDao/FpDao_FpDao.ts','wrappers/FpDao.ts')\"",
         "oracle": "ts-node --transpile-only scripts/oracle.ts",
+        "bridge:stacks": "ts-node --transpile-only scripts/bridgeToStacks.ts",
+        "oracle:monitor": "ts-node --transpile-only scripts/oracle-monitor.ts",
+        "oracle:stacks": "ts-node --transpile-only scripts/stacks.ts",
+        "lab:mock-stacks": "node scripts/lab/mock-stacks-server.cjs",
+        "lab:demo-oracle": "node scripts/lab/demo-oracle-http.cjs",
         "test": "jest --verbose",
         "release": "blueprint pack && npm publish --access public"
     },
     "dependencies": {
         "@stacks/transactions": "^7.4.0",
-        "@ton/core": "~0"
+        "@ton/core": "^0.63.1"
     },
     "devDependencies": {
         "@tact-lang/compiler": ">=1.6.13 <2.0.0",
@@ -22,9 +27,11 @@
         "@ton/sandbox": ">=0.37.0",
         "@ton/test-utils": ">=0.11.0",
         "@ton/tolk-js": ">=1.0.0",
-        "@ton/ton": ">=16.2.2 <17.0.0",
+        "@ton/ton": "^16.2.4",
         "@types/jest": "^30.0.0",
         "@types/node": "^22.17.2",
+        "axios": "^1.15.0",
+        "express": "^5.2.1",
         "jest": "^30.0.5",
         "prettier": "^3.6.2",
         "ts-jest": "^29.4.1",

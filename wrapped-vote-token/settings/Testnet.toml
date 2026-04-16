@@ -1,0 +1,6 @@
+[network]
+name = "testnet"
+node_rpc_address = "https://api.testnet.hiro.so"
+
+[accounts.deployer]
+mnemonic = "vote fetch verify dynamic venue brisk client hurt wonder speed summer impose shift dice flower expand shaft spirit height mind fitness bring ancient company"

@@ -89,6 +89,17 @@
             <button class="btn btn-blue" onclick="bridgeToStacks()">🚀 Отправить в Stacks</button>
         </div>
     </div>
+    <div class="card" id="tonMemoCard" style="display:none">
+        <div class="card-title">📎 TON с припиской (для моста партнёров)</div>
+        <p class="hint" style="margin-bottom:12px">Обычный перевод TON на их bridge-адрес с текстовым комментарием <code style="color:#7db8f7">stacks: ST…</code>. Работает только если их оракул слушает такие входящие.</p>
+        <label>TON-адрес получателя (bridge)</label>
+        <input type="text" id="memoBridgeTo" placeholder="EQ… / UQ… / kQ…">
+        <label>Сумма (TON)</label>
+        <input type="number" id="memoTonAmount" placeholder="0.05" min="0.000000001" step="any">
+        <label>Stacks principal (в комментарий подставится как stacks: …)</label>
+        <input type="text" id="memoStacksPrincipal" placeholder="ST3SHBVAF352SX7X859FGY0VVGGE5Q16KMYYMP51H">
+        <button class="btn btn-blue" onclick="sendTonWithStacksMemo()">📤 Отправить TON с припиской</button>
+    </div>
     <div class="card" id="transferCard" style="display:none">
         <div class="card-title">💸 Перевод MTK токенов</div>
         <label>Адрес получателя</label>
@@ -121,9 +132,31 @@
     import { beginCell, Cell, Address } from "https://esm.sh/@ton/core@0.59.0";
     import { Buffer } from "https://esm.sh/buffer@6.0.3";
 
-    const DAO_ADDRESS   = "kQDpBBLNLLHVWHH26gQCoGY0P8lGYU45bzqIrx35zzc8rltm";
-    const TOKEN_ADDRESS = "EQDwTtV3R11WxyEGxWH4fceUR5m2LgF2QVc8q33j3cma9RmQ";
-    const TONCENTER   = "https://testnet.toncenter.com/api/v2";
+    const DAO_ADDRESS = "kQADgprdDkM9ApCjOpChsXNGUJcFHPtEcj2AkXzEsyl2qpRp";
+
+    const JETTON_MASTER_ADDRESS = "EQBLqt1rDRbZMJ2B80UqKEspetZ5GtPhedWnUe2qAiqTpDp9";
+    const TONCENTER = "https://testnet.toncenter.com/api/v2";
+
+    /** Адрес DAO в bounceable form — часть кошельков стабильнее принимает его в sendTransaction. */
+    function daoAddressForTx() {
+        return Address.parse(DAO_ADDRESS).toString({ urlSafe: true, bounceable: true, testOnly: true });
+    }
+
+    const BRIDGE_GAS_NANO = "250000000";
+
+    function isLikelyStacksPrincipal(s) {
+        const t = s.trim();
+        return t.startsWith("ST") && t.length >= 20 && t.length <= 80 && !/\s/.test(t);
+    }
+
+    /** Стандартный текстовый комментарий к переводу TON (op 0 + текст). */
+    function buildTextCommentPayload(text) {
+        return beginCell().storeUint(0, 32).storeStringTail(text).endCell().toBoc().toString("base64");
+    }
+
+    function tonAddressForSend(raw) {
+        return Address.parse(raw.trim()).toString({ urlSafe: true, bounceable: true, testOnly: true });
+    }
 
     let jettonBalance = 0;
     let votingPowerLocked = 0;
@@ -145,37 +178,7 @@
                 document.getElementById("wBal").textContent = (parseInt(j.result)/1e9).toFixed(2) + " TON";
             } catch { document.getElementById("wBal").textContent = "—"; }
             try {
-                const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-                const bocStr = ownerCell.toBoc().toString("base64");
-
-                const wr = await fetch(`${TONCENTER}/runGetMethod`, {
-                    method: "POST",
-                    headers: {"Content-Type":"application/json"},
-                    body: JSON.stringify({
-                        address: TOKEN_ADDRESS,
-                        method: "getWalletAddress",
-                        stack: [["tvm.Slice", bocStr]]
-                    })
-                });
-                const wj = await wr.json();
-                if (wj.ok && wj.result.exit_code === 0 && wj.result.stack[0]) {
-                    const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
-                    const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
-                    const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
-
-                    const br = await fetch(`${TONCENTER}/runGetMethod`, {
-                        method: "POST",
-                        headers: {"Content-Type":"application/json"},
-                        body: JSON.stringify({ address: walletAddr, method: "balance", stack: [] })
-                    });
-                    const bj = await br.json();
-                    if (bj.ok && bj.result.stack[0]) {
-                        jettonBalance = parseInt(bj.result.stack[0][1], 16) / 1e9;
-                        updateJettonDisplay();
-                    } else {
-                        document.getElementById("wJetton").textContent = "0 MTK";
-                    }
-                }
+                await loadJettonBalance();
             } catch(e) {
                 console.error("MTK balance error:", e.message);
                 document.getElementById("wJetton").textContent = "—";
@@ -183,6 +186,7 @@
             document.getElementById("walletCard").style.display = "block";
             document.getElementById("createCard").style.display = "block";
             document.getElementById("transferCard").style.display = "block";
+            document.getElementById("tonMemoCard").style.display = "block";
             document.getElementById("vpCard").style.display = "block";
             loadVotingPower();
             document.getElementById("refreshBtn").style.display = "inline-flex";
@@ -190,7 +194,9 @@
             loadProposals();
         } else {
             myAddr = null;
-            ["walletCard","createCard"].forEach(id => document.getElementById(id).style.display = "none");
+            ["walletCard","createCard","transferCard","tonMemoCard","vpCard"].forEach(
+                id => (document.getElementById(id).style.display = "none")
+            );
             document.getElementById("refreshBtn").style.display = "none";
         }
     });
@@ -204,6 +210,28 @@
     function showStatus(msg, type="info") {
         document.getElementById("statusBox").innerHTML = `<div class="alert a-${type}">${msg}</div>`;
         if (type === "success") setTimeout(() => document.getElementById("statusBox").innerHTML = "", 5000);
+    }
+
+    async function getJettonWalletAddress(ownerAddress) {
+        const ownerCell = beginCell().storeAddress(Address.parse(ownerAddress)).endCell();
+        const bocStr = ownerCell.toBoc().toString("base64");
+        const wr = await fetch(`${TONCENTER}/runGetMethod`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                address: JETTON_MASTER_ADDRESS,
+                method: "getWalletAddress",
+                stack: [["tvm.Slice", bocStr]]
+            })
+        });
+        const wj = await wr.json();
+        if (!wj.ok || wj.result?.exit_code !== 0 || !wj.result?.stack?.[0]?.[1]?.bytes) {
+            const exitCode = wj?.result?.exit_code;
+            throw new Error(`Не удалось получить адрес jetton-кошелька (master=${JETTON_MASTER_ADDRESS}, exit=${exitCode ?? "n/a"})`);
+        }
+        const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
+        const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
+        return walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
     }
 
     function buildCreatePayload(desc, dur) {
@@ -242,7 +270,7 @@
             showStatus("⏳ Подтверди транзакцию в TonKeeper…", "info");
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
-                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildCreatePayload(desc, dur) }]
+                messages: [{ address: daoAddressForTx(), amount: "100000000", payload: buildCreatePayload(desc, dur) }]
             });
             showStatus("✅ Отправлено! Список обновится через ~15 сек.", "success");
             document.getElementById("pDesc").value = "";
@@ -264,7 +292,7 @@
                 .endCell();
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
-                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+                messages: [{ address: daoAddressForTx(), amount: "100000000", payload: cell.toBoc().toString("base64") }]
             });
             showStatus("✅ Голос отправлен! Обновляем через ~15 сек.", "success");
             setTimeout(() => { loadProposals(); loadVotingPower(); }, 15000);
@@ -276,7 +304,7 @@
             showStatus("⏳ Подводим итоги… Подтверди в TonKeeper.", "info");
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
-                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: buildExecutePayload(id) }]
+                messages: [{ address: daoAddressForTx(), amount: "100000000", payload: buildExecutePayload(id) }]
             });
             showStatus("✅ Готово! Обновляем через ~15 сек.", "success");
             setTimeout(loadProposals, 15000);
@@ -292,6 +320,23 @@
         const j = await r.json();
         if (!j.ok) throw new Error(j.error || "get method failed");
         return j.result;
+    }
+
+    async function loadJettonBalance() {
+        if (!myAddr) return;
+        const walletAddr = await getJettonWalletAddress(myAddr);
+        const br = await fetch(`${TONCENTER}/runGetMethod`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ address: walletAddr, method: "balance", stack: [] })
+        });
+        const bj = await br.json();
+        if (bj.ok && bj.result.stack[0]) {
+            jettonBalance = parseInt(bj.result.stack[0][1], 16) / 1e9;
+            updateJettonDisplay();
+        } else {
+            document.getElementById("wJetton").textContent = "0 MTK";
+        }
     }
 
     async function loadProposals() {
@@ -392,23 +437,7 @@
                 .storeBit(0)
                 .endCell();
 
-            const ownerCell = beginCell().storeAddress(Address.parse(myAddr)).endCell();
-            const bocStr = ownerCell.toBoc().toString("base64");
-            const wr = await fetch(`${TONCENTER}/runGetMethod`, {
-                method: "POST",
-                headers: {"Content-Type":"application/json"},
-                body: JSON.stringify({
-                    address: TOKEN_ADDRESS,
-                    method: "getWalletAddress",
-                    stack: [["tvm.Slice", bocStr]]
-                })
-            });
-            const wj = await wr.json();
-            if (!wj.ok || wj.result.exit_code !== 0) throw new Error("Не удалось получить адрес кошелька");
-
-            const cellBytes = Uint8Array.from(atob(wj.result.stack[0][1].bytes), c => c.charCodeAt(0));
-            const walletCell = Cell.fromBoc(Buffer.from(cellBytes))[0];
-            const walletAddr = walletCell.beginParse().loadAddress().toString({ bounceable: true, testOnly: true });
+            const walletAddr = await getJettonWalletAddress(myAddr);
 
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
@@ -436,7 +465,7 @@
                 method: "POST",
                 headers: {"Content-Type":"application/json"},
                 body: JSON.stringify({
-                    address: DAO_ADDRESS,
+                    address: Address.parse(DAO_ADDRESS).toString({ bounceable: true, testOnly: true }),
                     method: "getVotingPower",
                     stack: [["tvm.Slice", bocStr]]
                 })
@@ -456,15 +485,26 @@
     window.depositVP = async function() {
         const amount = parseInt(document.getElementById("vpDepositAmount").value);
         if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
+        if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
         try {
             showStatus("⏳ Вносим voting power… Подтверди в TonKeeper.", "info");
+            const jettonAmount = BigInt(amount) * 1000000000n;
             const cell = beginCell()
-                .storeUint(4, 32)       // op = DepositVotingPower
-                .storeUint(amount, 32)  // amount
+                .storeUint(0x0f8a7ea5, 32)   // jetton transfer op
+                .storeUint(0, 64)            // query_id
+                .storeCoins(jettonAmount)    // amount in nano-jettons
+                .storeAddress(Address.parse(DAO_ADDRESS)) // destination (DAO)
+                .storeAddress(Address.parse(myAddr))      // response_destination
+                .storeBit(0)                 // no custom_payload
+                .storeCoins(1n)              // forward_ton_amount (for transfer notification)
+                .storeBit(0)                 // empty forward_payload
                 .endCell();
+
+            const walletAddr = await getJettonWalletAddress(myAddr);
+
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
-                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+                messages: [{ address: walletAddr, amount: "100000000", payload: cell.toBoc().toString("base64") }]
             });
             showStatus("✅ Voting power внесён! Обновляем через 15 сек.", "success");
             setTimeout(loadVotingPower, 15000);
@@ -482,7 +522,7 @@
                 .endCell();
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
-                messages: [{ address: DAO_ADDRESS, amount: "100000000", payload: cell.toBoc().toString("base64") }]
+                messages: [{ address: daoAddressForTx(), amount: "100000000", payload: cell.toBoc().toString("base64") }]
             });
             showStatus("✅ Voting power выведен! Обновляем через 15 сек.", "success");
             setTimeout(() => {
@@ -493,26 +533,48 @@
     }
 
     window.bridgeToStacks = async function() {
-        const amount = parseInt(document.getElementById("bridgeAmount").value);
+        const rawAmt = document.getElementById("bridgeAmount").value;
+        const amount = parseInt(rawAmt, 10);
         const stxAddr = document.getElementById("stacksAddr").value.trim();
 
-        if (!amount || amount <= 0) { showStatus("❌ Введи количество", "error"); return; }
-        if (!stxAddr) { showStatus("❌ Введи адрес получателя в Stacks", "error"); return; }
+        if (!myAddr) { showStatus("❌ Сначала подключи кошелёк", "error"); return; }
+        if (!amount || amount <= 0 || !Number.isFinite(amount)) {
+            showStatus("❌ Введи целое количество voting power", "error");
+            return;
+        }
+        if (amount > 0xffffffff) {
+            showStatus("❌ Слишком большое число (максимум для контракта)", "error");
+            return;
+        }
+        if (!stxAddr) { showStatus("❌ Введи адрес получателя в Stacks (principal, например ST3…)", "error"); return; }
+        if (!isLikelyStacksPrincipal(stxAddr)) {
+            showStatus("❌ Похоже на неверный Stacks principal (нужен формат ST… без пробелов)", "error");
+            return;
+        }
+
+        await loadVotingPower();
+        if (amount > votingPowerLocked) {
+            showStatus(
+                `❌ Недостаточно voting power: у вас ${votingPowerLocked}, вы указали ${amount}. Учтите: часть могла уйти в голоса.`,
+                "error"
+            );
+            return;
+        }
 
         try {
-            showStatus("⏳ Готовим транзакцию моста…", "info");
+            showStatus("⏳ Готовим транзакцию моста (BurnAndBridgeBack)…", "info");
 
             const cell = beginCell()
                 .storeUint(7, 32)
-                .storeUint(amount, 32)
+                .storeUint(BigInt(amount), 32)
                 .storeStringRefTail(stxAddr)
                 .endCell();
 
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now()/1000) + 600,
                 messages: [{
-                    address: DAO_ADDRESS,
-                    amount: "100000000",
+                    address: daoAddressForTx(),
+                    amount: BRIDGE_GAS_NANO,
                     payload: cell.toBoc().toString("base64")
                 }]
             });
@@ -522,9 +584,70 @@
             document.getElementById("stacksAddr").value = "";
             setTimeout(loadVotingPower, 15000);
         } catch(e) {
-            showStatus("❌ " + (e.message || "Ошибка"), "error");
+            const msg = e?.message || String(e);
+            const hint =
+                /insufficient|balance|exit code|revert|failed/i.test(msg)
+                    ? " Проверьте: достаточно VP (не в голосах), тестнет в кошельке, адрес DAO совпадает с задеплоенным контрактом."
+                    : "";
+            showStatus("❌ " + msg + hint, "error");
         }
     }
+
+    window.sendTonWithStacksMemo = async function () {
+        const toRaw = document.getElementById("memoBridgeTo").value.trim();
+        const tonAmt = parseFloat(document.getElementById("memoTonAmount").value);
+        const principal = document.getElementById("memoStacksPrincipal").value.trim();
+
+        if (!myAddr) {
+            showStatus("❌ Сначала подключи кошелёк", "error");
+            return;
+        }
+        if (!toRaw) {
+            showStatus("❌ Укажи TON-адрес bridge", "error");
+            return;
+        }
+        if (!Number.isFinite(tonAmt) || tonAmt <= 0) {
+            showStatus("❌ Укажи сумму TON", "error");
+            return;
+        }
+        if (!isLikelyStacksPrincipal(principal)) {
+            showStatus("❌ Неверный Stacks principal (формат ST…, без пробелов)", "error");
+            return;
+        }
+
+        const comment = `stacks: ${principal}`;
+        let to;
+        try {
+            to = tonAddressForSend(toRaw);
+        } catch {
+            showStatus("❌ Неверный TON-адрес получателя", "error");
+            return;
+        }
+
+        const nano = BigInt(Math.ceil(tonAmt * 1e9));
+        if (nano <= 0n) {
+            showStatus("❌ Слишком маленькая сумма", "error");
+            return;
+        }
+
+        try {
+            showStatus("⏳ Подтверди перевод TON с комментарием в кошельке…", "info");
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 600,
+                messages: [
+                    {
+                        address: to,
+                        amount: nano.toString(),
+                        payload: buildTextCommentPayload(comment),
+                    },
+                ],
+            });
+            showStatus(`✅ Отправлено. Комментарий: ${comment}`, "success");
+            document.getElementById("memoTonAmount").value = "";
+        } catch (e) {
+            showStatus("❌ " + (e?.message || e), "error");
+        }
+    };
 
     window.createProposal = createProposal;
     window.loadVotingPower = loadVotingPower;

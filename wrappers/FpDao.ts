@@ -1070,6 +1070,7 @@ export function dictValueParserBurnAndBridgeBack(): DictionaryValue<BurnAndBridg
 
 export type BridgeOutEvent = {
     $$type: 'BridgeOutEvent';
+    id: bigint;
     amount: bigint;
     stacksAddress: string;
 }
@@ -1078,6 +1079,7 @@ export function storeBridgeOutEvent(src: BridgeOutEvent) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeUint(273, 32);
+        b_0.storeUint(src.id, 64);
         b_0.storeUint(src.amount, 32);
         b_0.storeStringRefTail(src.stacksAddress);
     };
@@ -1086,25 +1088,29 @@ export function storeBridgeOutEvent(src: BridgeOutEvent) {
 export function loadBridgeOutEvent(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 273) { throw Error('Invalid prefix'); }
+    const _id = sc_0.loadUintBig(64);
     const _amount = sc_0.loadUintBig(32);
     const _stacksAddress = sc_0.loadStringRefTail();
-    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+    return { $$type: 'BridgeOutEvent' as const, id: _id, amount: _amount, stacksAddress: _stacksAddress };
 }
 
 export function loadTupleBridgeOutEvent(source: TupleReader) {
+    const _id = source.readBigNumber();
     const _amount = source.readBigNumber();
     const _stacksAddress = source.readString();
-    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+    return { $$type: 'BridgeOutEvent' as const, id: _id, amount: _amount, stacksAddress: _stacksAddress };
 }
 
 export function loadGetterTupleBridgeOutEvent(source: TupleReader) {
+    const _id = source.readBigNumber();
     const _amount = source.readBigNumber();
     const _stacksAddress = source.readString();
-    return { $$type: 'BridgeOutEvent' as const, amount: _amount, stacksAddress: _stacksAddress };
+    return { $$type: 'BridgeOutEvent' as const, id: _id, amount: _amount, stacksAddress: _stacksAddress };
 }
 
 export function storeTupleBridgeOutEvent(source: BridgeOutEvent) {
     const builder = new TupleBuilder();
+    builder.writeNumber(source.id);
     builder.writeNumber(source.amount);
     builder.writeString(source.stacksAddress);
     return builder.build();
@@ -1270,27 +1276,29 @@ export function dictValueParserProposal(): DictionaryValue<Proposal> {
 export type FpDao$Data = {
     $$type: 'FpDao$Data';
     oracleAddress: Address;
-    votingPower: Dictionary<bigint, bigint>;
     jettonMaster: Address;
     proposals: Dictionary<bigint, Proposal>;
     proposalCount: bigint;
     voted: Dictionary<bigint, boolean>;
+    votingPower: Dictionary<bigint, bigint>;
     deposits: Dictionary<bigint, bigint>;
     version: bigint;
+    bridgeEventSeq: bigint;
 }
 
 export function storeFpDao$Data(src: FpDao$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeAddress(src.oracleAddress);
-        b_0.storeDict(src.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_0.storeAddress(src.jettonMaster);
         b_0.storeDict(src.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal());
         b_0.storeUint(src.proposalCount, 32);
+        b_0.storeDict(src.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool());
         const b_1 = new Builder();
-        b_1.storeDict(src.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool());
+        b_1.storeDict(src.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_1.storeDict(src.deposits, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257));
         b_1.storeUint(src.version, 32);
+        b_1.storeUint(src.bridgeEventSeq, 64);
         b_0.storeRef(b_1.endCell());
     };
 }
@@ -1298,51 +1306,55 @@ export function storeFpDao$Data(src: FpDao$Data) {
 export function loadFpDao$Data(slice: Slice) {
     const sc_0 = slice;
     const _oracleAddress = sc_0.loadAddress();
-    const _votingPower = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_0);
     const _jettonMaster = sc_0.loadAddress();
     const _proposals = Dictionary.load(Dictionary.Keys.BigInt(257), dictValueParserProposal(), sc_0);
     const _proposalCount = sc_0.loadUintBig(32);
+    const _voted = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), sc_0);
     const sc_1 = sc_0.loadRef().beginParse();
-    const _voted = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), sc_1);
+    const _votingPower = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_1);
     const _deposits = Dictionary.load(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), sc_1);
     const _version = sc_1.loadUintBig(32);
-    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
+    const _bridgeEventSeq = sc_1.loadUintBig(64);
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version, bridgeEventSeq: _bridgeEventSeq };
 }
 
 export function loadTupleFpDao$Data(source: TupleReader) {
     const _oracleAddress = source.readAddress();
-    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _jettonMaster = source.readAddress();
     const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _deposits = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
+    const _bridgeEventSeq = source.readBigNumber();
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version, bridgeEventSeq: _bridgeEventSeq };
 }
 
 export function loadGetterTupleFpDao$Data(source: TupleReader) {
     const _oracleAddress = source.readAddress();
-    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _jettonMaster = source.readAddress();
     const _proposals = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), dictValueParserProposal(), source.readCellOpt());
     const _proposalCount = source.readBigNumber();
     const _voted = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.Bool(), source.readCellOpt());
+    const _votingPower = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _deposits = Dictionary.loadDirect(Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257), source.readCellOpt());
     const _version = source.readBigNumber();
-    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, votingPower: _votingPower, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, deposits: _deposits, version: _version };
+    const _bridgeEventSeq = source.readBigNumber();
+    return { $$type: 'FpDao$Data' as const, oracleAddress: _oracleAddress, jettonMaster: _jettonMaster, proposals: _proposals, proposalCount: _proposalCount, voted: _voted, votingPower: _votingPower, deposits: _deposits, version: _version, bridgeEventSeq: _bridgeEventSeq };
 }
 
 export function storeTupleFpDao$Data(source: FpDao$Data) {
     const builder = new TupleBuilder();
     builder.writeAddress(source.oracleAddress);
-    builder.writeCell(source.votingPower.size > 0 ? beginCell().storeDictDirect(source.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeAddress(source.jettonMaster);
     builder.writeCell(source.proposals.size > 0 ? beginCell().storeDictDirect(source.proposals, Dictionary.Keys.BigInt(257), dictValueParserProposal()).endCell() : null);
     builder.writeNumber(source.proposalCount);
     builder.writeCell(source.voted.size > 0 ? beginCell().storeDictDirect(source.voted, Dictionary.Keys.BigInt(257), Dictionary.Values.Bool()).endCell() : null);
+    builder.writeCell(source.votingPower.size > 0 ? beginCell().storeDictDirect(source.votingPower, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeCell(source.deposits.size > 0 ? beginCell().storeDictDirect(source.deposits, Dictionary.Keys.BigInt(257), Dictionary.Values.BigInt(257)).endCell() : null);
     builder.writeNumber(source.version);
+    builder.writeNumber(source.bridgeEventSeq);
     return builder.build();
 }
 
@@ -1374,7 +1386,7 @@ function initFpDao_init_args(src: FpDao_init_args) {
 }
 
 async function FpDao_init(jettonMaster: Address, version: bigint, oracle: Address) {
-    const __code = Cell.fromHex('b5ee9c7241022901000acf00022cff008e88f4a413f4bcf2c80bed53208e8130e1ed43d9010f020271020a0201200305018db9f0ced44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e25507db3c6c81804014a8307db3c810101530850334133f40c6fa19401d70030925b6de2206e923070e0206ef2d08023020271060801b8a86fed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e25507db3c6c81206e92306d99206ef2d0806f276f07e2206e92306dde07005a810101260259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e20188a8e1ed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e2db3c6c81090002250201580b0d0189b5263da89a1a400031c39f481e809f481a803a1e809a63fe809e809a63e6020b020ae20acd8311c2ff481020203ae01f480aa4007a2b004e0dadada862ada03c5b678d90300c000223018db722bda89a1a400031c39f481e809f481a803a1e809a63fe809e809a63e6020b020ae20acd8311c2ff481020203ae01f480aa4007a2b004e0dadada862ada03c4aa0fb678d90300e014a8307db3c810101530350334133f40c6fa19401d70030925b6de2206e923070e0206ef2d0802304f2eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40f404fa40d401d0f404d31ff404f404d31f301058105710566c188e17fa40810101d700fa40552003d15802706d6d6d43156d01e209925f09e07028d74920c21f9139e30d20c00029c121b0e302c000925f09e30d1026272804363108d31f2182107362d09cbae30221c005e30221c001e30221c0021113161902f8313807d33f31fa00fa40308307db3c0182103b9aca00a90481010154570052404133f40c6fa19401d70030925b6de2206e8e1c30810101541700546390216e955b59f45a3098c801cf004133f442e28e2281010101206ef2d08022a05313104a59216e955b59f45a3098c801cf004133f442e2e28101015459005240231201be4133f40c6fa19401d70030925b6de2206e8e1c3081010120104a433018216e955b59f45a3098c801cf004133f442e28e2581010101206ef2d0805008a027104a10381028216e955b59f45a3098c801cf004133f442e2e210571046103544032102ea313807d31f30f8428307db3c81010154570052304133f40c6fa19401d70030925b6de2810101545a0052404133f40c6fa19401d70030925b6de28200f9b6216eb39821206ef2d08025be9170e2f2f4815cdc226eb39822206ef2d08025be9170e2f2f481010102206ef2d08024a15323104b103b59231401fe216e955b59f45a3098c801cf004133f442e281010108206ef2d08023a128104b10391029216e955b59f45a3098c801cf004133f442e2821005f5e1007f7070c8821084cc682d01cb1f7001cb3f0c82103b9aca00a81cfa02f842cf16f842cf161bca0070fa021aca00c9260350aa7050346d036d5520c8cf8580ca00cf84401500a0ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3102fc313807d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f4f8428307db3c810101530850334133f40c6fa19401d70030925b6de2817c79216eb39801206ef2d080c200923170e2f2f423f82358a0810101702070f8422606105859c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91035231701c2206e953059f45a30944133f415e201a4881068105710464540f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db311800280000000050726f706f73616c206372656174656403fc8f78313807d31fd200d31f30820090af5335b9f2f48200f7e021c200f2f4258101012459f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f2782009a17f82324b9f2f4f8428307db3c2a82103b9aca00a82182103b9aca00a908a02c8101012271e021c003231a1d01fe4133f40c6fa19401d70030925b6de28200e7e9216e92317f9801206ef2d080c000e2f2f48101012056125422434133f40c6fa19401d70030925b6de2815cdc216eb39821206ef2d0802cbe9170e2f2f481010101206ef2d0802ba12104111304102302111302216e955b59f45a3098c801cf004133f442e21b8101010111101b02fa7f71216e955b59f45a3098c801cf004133f442e208935036a0945026a058e2104503502481010109c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9154330206e953059f45a30944133f415e288106810571046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb001c21002000000000566f746520636f756e74656402fe8ef9313807d31f30820090af5313b9f2f4238101012259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f27813d40f82324bef2f48200cdcb02b312f2f4151443307f8101014717c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9103512e021c0061e2001c0206e953059f45a30944133f415e288106810571046455014f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db311f002a0000000050726f706f73616c20657865637574656404fe8f77313807fa40d31f308176abf84229c705f2f4018307db3c81010154570052304133f40c6fa19401d70030925b6de2206e8e1a3081010120104813216e955b59f45a3098c801cf004133f442e28e2181010101206ef2d0805003a0221048216e955b59f45a3098c801cf004133f442e2e210570610354403e021c007e30223212225004ac87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3102d4313807d31fd430d0f8428307db3c81010154580052304133f40c6fa19401d70030925b6de270216eb39630206ef2d0809131e28200d5575314bef2f48101015114a121104a1023216e955b59f45a3098c801cf004133f442e206c8598101115003cb1fcb1f01c8cecdc923240006d701300082c88258c000000000000000000000000101cb67ccc970fb0010575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db3100e6218210946a98b6ba8e67313807d33f30c8018210aff90f5758cb1fcb3fc91068105710461035443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db31e0300052303710575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54006207c21f8e2910575514c87f01ca0055705078ce15f40013ce01c8f40012cb1f12f40012f40012cb1fcdc9ed54db31e05f080006f2c082d2a14b3f');
+    const __code = Cell.fromHex('b5ee9c7241022701000b5c000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010f020271020a020120030501a3b9f0ced44d0d200018e20fa40fa40f404d31fd401d0f404f404f404d31fd33f3010591058105710566c198e1efa40810101d700fa40552003d158706d6d6d6d2410681067104610344130e25508db3c6c91804014a8307db3c810101530550334133f40c6fa19401d70030925b6de2206e923070e0206ef2d08023020271060801cea86fed44d0d200018e20fa40fa40f404d31fd401d0f404f404f404d31fd33f3010591058105710566c198e1efa40810101d700fa40552003d158706d6d6d6d2410681067104610344130e25508db3c6c91206e92306d99206ef2d0806f276f07e2206e92306dde07005a810101280259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2019ea8e1ed44d0d200018e20fa40fa40f404d31fd401d0f404f404f404d31fd33f3010591058105710566c198e1efa40810101d700fa40552003d158706d6d6d6d2410681067104610344130e2db3c6c91090002270201580b0d019fb5263da89a1a400031c41f481f481e809a63fa803a1e809e809e809a63fa67e6020b220b020ae20acd8331c3df481020203ae01f480aa4007a2b0e0dadadada4820d020ce208c20688261c5b678d92300c00022501a3b722bda89a1a400031c41f481f481e809a63fa803a1e809e809e809a63fa67e6020b220b020ae20acd8331c3df481020203ae01f480aa4007a2b0e0dadadada4820d020ce208c20688261c4aa11b678d92300e014a8307db3c810101530450334133f40c6fa19401d70030925b6de2206e923070e0206ef2d0802302f830eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e20fa40fa40f404d31fd401d0f404f404f404d31fd33f3010591058105710566c198e1efa40810101d700fa40552003d158706d6d6d6d2410681067104610344130e20a925f0ae07029d74920c21f913ae30d20c0002ac121b0102604363109d31f2182107362d09cbae30221c005e30221c001e30221c0021113161902f8313908d33f31fa00fa40308307db3c0182103b9aca00a90481010154540052404133f40c6fa19401d70030925b6de2206e8e1c30810101541400546360216e955b59f45a3098c801cf004133f442e28e2281010101206ef2d08022a05313104759216e955b59f45a3098c801cf004133f442e2e28101015453005240231200fe4133f40c6fa19401d70030925b6de2206e8e1a3081010154122215216e955b59f45a3098c801cf004133f442e28e2381010101206ef2d0805005a02410351025216e955b59f45a3098c801cf004133f442e2e210685515c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db3102ea313908d31f30f8428307db3c81010154540052304133f40c6fa19401d70030925b6de281010154540052404133f40c6fa19401d70030925b6de28200f9b6216eb39821206ef2d08025be9170e2f2f4815cdc226eb39822206ef2d08025be9170e2f2f481010102206ef2d08024a153231048103859231401fe216e955b59f45a3098c801cf004133f442e281010105206ef2d08023a1255e231026216e955b59f45a3098c801cf004133f442e2821005f5e1007f7070c8821084cc682d01cb1f7001cb3f0682103b9aca00a816fa02f842cf16f842cf1615ca0070fa0214ca00c9280350447050346d036d5520c8cf8580ca00cf8440ce011500a2fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010685515c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db3102fc313908d401d001d31f3081119921c23bf2f4814a388b08523001f90101f901bdf2f4f8428307db3c810101530550334133f40c6fa19401d70030925b6de2817c79216eb39801206ef2d080c200923170e2f2f425f82358a0810101702070f8422606105859c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec91037231701ce206e953059f45a30944133f415e203a4881079106810471610354140f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db311800280000000050726f706f73616c206372656174656403fc8f78313908d31fd200d31f30820090af5337b9f2f48200f7e021c200f2f4278101012459f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f2782009a17f82324b9f2f4f8428307db3c2a82103b9aca00a82182103b9aca00a908a02e8101012271e021c003231a1d01fe4133f40c6fa19401d70030925b6de28200e7e9216e92317f9801206ef2d080c000e2f2f4810101545e0052404133f40c6fa19401d70030925b6de2815cdc216eb39821206ef2d0802cbe9170e2f2f481010101206ef2d0802ba12104111004102302111002216e955b59f45a3098c801cf004133f442e21d810101500d7f711b02fc216e955b59f45a3098c801cf004133f442e208935036a0945026a058e210450350248101010bc855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec910374550206e953059f45a30944133f415e2881079106817104610351024f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb001c21002000000000566f746520636f756e74656402fe8ef9313908d31f30820090af5315b9f2f4258101012259f40d6fa192306ddf206e92306d8e17d0d31fd401d001d33fd33fd31fd200fa4055606c176f07e2206ef2d0806f27813d40f82324bef2f48200cdcb02b312f2f4151443307f8101014717c855605067cb1f04c8ce14cd12cb3fcb3fcb1fca00cec9103712e021c0061e2001ca206e953059f45a30944133f415e2881079106817104610351024f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db311f002a0000000050726f706f73616c20657865637574656403fe8f7b313908fa40d31f308176abf8422ac705f2f4018307db3c81010154540052304133f40c6fa19401d70030925b6de2206e8e1a3081010120104513216e955b59f45a3098c801cf004133f442e28e2181010101206ef2d0805003a0221045216e955b59f45a3098c801cf004133f442e2e21068105710461035443302e0212321220050c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db3103fcc0078f71313908d31fd430d0f8428307db3c81010154550052304133f40c6fa19401d70030925b6de270216eb39630206ef2d0809131e28200d5575314bef2f48101015114a12110471023216e955b59f45a3098c801cf004133f442e22aa44bb4c855208101115004cb1f12cb3fcb1f01c8cecdc9e0218210946a98b6ba2324250006d701300098c88258c000000000000000000000000101cb67ccc970fb00106810571046103540145033c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db3100de8e6b313908d33f30c8018210aff90f5758cb1fcb3fc9107910681057104610354430f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db31e03000dc8e2c303810685515c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54e0c0008e3408c21f8e2c10685515c87f01ca0055805089ce16ce14f40012cb1f01c8f40012f40012f40012cb1f12cb3fcdc9ed54db31e05f09925f0ae2f2c0821b25cd41');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initFpDao_init_args({ $$type: 'FpDao_init_args', jettonMaster, version, oracle })(builder);
@@ -1506,10 +1518,10 @@ const FpDao_types: ABIType[] = [
     {"name":"WithdrawVotingPower","header":5,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
     {"name":"MintVotingPower","header":6,"fields":[{"name":"user","type":{"kind":"simple","type":"address","optional":false}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
     {"name":"BurnAndBridgeBack","header":7,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"stacksAddress","type":{"kind":"simple","type":"string","optional":false}}]},
-    {"name":"BridgeOutEvent","header":273,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"stacksAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"BridgeOutEvent","header":273,"fields":[{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"stacksAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"JettonTransferNotification","header":1935855772,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"sender","type":{"kind":"simple","type":"address","optional":false}},{"name":"forwardPayload","type":{"kind":"simple","type":"cell","optional":true}}]},
     {"name":"Proposal","header":null,"fields":[{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"votesFor","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"votesAgainst","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"deadline","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"executed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"proposer","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"FpDao$Data","header":null,"fields":[{"name":"oracleAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"votingPower","type":{"kind":"dict","key":"int","value":"int"}},{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"int","value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"deposits","type":{"kind":"dict","key":"int","value":"int"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"FpDao$Data","header":null,"fields":[{"name":"oracleAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"jettonMaster","type":{"kind":"simple","type":"address","optional":false}},{"name":"proposals","type":{"kind":"dict","key":"int","value":"Proposal","valueFormat":"ref"}},{"name":"proposalCount","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"voted","type":{"kind":"dict","key":"int","value":"bool"}},{"name":"votingPower","type":{"kind":"dict","key":"int","value":"int"}},{"name":"deposits","type":{"kind":"dict","key":"int","value":"int"}},{"name":"version","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"bridgeEventSeq","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
 ]
 
 const FpDao_opcodes = {

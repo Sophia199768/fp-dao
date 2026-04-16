@@ -30,6 +30,7 @@ message(7) BurnAndBridgeBack {
 }
 
 message(0x111) BridgeOutEvent {
+    id: Int as uint64;
     amount: Int as uint32;
     stacksAddress: String;
 }
@@ -67,6 +68,9 @@ contract FpDao with Deployable {
 
     version: Int as uint32;
 
+    /// Монотонный id события bridge (для dedup mint на Stacks).
+    bridgeEventSeq: Int as uint64;
+
     init(jettonMaster: Address, version: Int, oracle: Address) {
         self.oracleAddress = oracle;
         self.jettonMaster  = jettonMaster;
@@ -76,6 +80,7 @@ contract FpDao with Deployable {
         self.votingPower   = emptyMap();
         self.deposits      = emptyMap();
         self.version       = version;
+        self.bridgeEventSeq = 0;
     }
 
     receive() {}
@@ -267,7 +272,11 @@ contract FpDao with Deployable {
         require(currentVP >= msg.amount, "Insufficient balance");
         self.votingPower.set(addrInt, currentVP - msg.amount);
 
+        let eventId: Int = self.bridgeEventSeq;
+        self.bridgeEventSeq = self.bridgeEventSeq + 1;
+
         emit(BridgeOutEvent{
+            id: eventId,
             amount: msg.amount,
             stacksAddress: msg.stacksAddress
         }.toCell());

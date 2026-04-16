@@ -1,0 +1,17 @@
+id: 0
+name: Devnet deployment
+network: devnet
+stacks-node: http://localhost:20443
+bitcoin-node: http://devnet:devnet@localhost:18443
+plan:
+  batches:
+  - id: 0
+    transactions:
+    - transaction-type: contract-publish
+      contract-name: token
+      expected-sender: SP3YH871R62HT9F88PYAV1NM0BMZT8V712H1X14ZV
+      cost: 19290
+      path: contracts/wrapped-vote-wrapped-vote-token.clar
+      anchor-block-only: true
+      clarity-version: 1
+    epoch: '2.05'

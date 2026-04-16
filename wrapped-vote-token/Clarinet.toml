@@ -1,0 +1,11 @@
+[project]
+name = "wrapped-vote-token"
+description = "Cross-chain wrapped token with oracle mint"
+authors = ["fp-dao"]
+telemetry = false
+
+[contracts.wrapped-vote-token]
+path = "contracts/wrapped-vote-token.clar"
+
+[repl.analysis]
+passes = ["check_checker"]
